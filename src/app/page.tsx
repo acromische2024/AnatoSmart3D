@@ -149,7 +149,13 @@ export default function HomePage() {
 
       {/* Main */}
       <main className="flex-1 relative z-10">
-        <AnimatePresence>{showHero && <HeroSection />}</AnimatePresence>
+        <motion.div
+          animate={{ opacity: showHero ? 1 : 0 }}
+          transition={{ duration: 0.3 }}
+          style={{ pointerEvents: showHero ? 'auto' : 'none' }}
+        >
+          <HeroSection />
+        </motion.div>
 
         <section className="relative px-4 sm:px-6 pb-20">
           <div className="mx-auto max-w-7xl">
@@ -247,7 +253,7 @@ export default function HomePage() {
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
                 layout
               >
-                <AnimatePresence mode="popLayout">
+                <AnimatePresence>
                   {filtered.map((prep, i) => (
                     <PreparationCard
                       key={prep.id}

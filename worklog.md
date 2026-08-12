@@ -112,3 +112,24 @@ Stage Summary:
 - 3 sample preparations with AI-generated images
 - Dark blue glassmorphism aesthetic confirmed by VLM analysis
 - Ready for user to upload their own photos and 3D models
+
+---
+Task ID: 7
+Agent: Main Agent
+Task: Fix scroll rollback/jank when scrolling down the page
+
+Work Log:
+- Identified root cause: `AnimatePresence` was unmounting HeroSection (85vh) from DOM when scrollY > 60% viewport
+- When HeroSection unmounted, page height shrank dramatically causing browser scroll position "rollback"
+- Fix: Replaced `AnimatePresence>{showHero && <HeroSection />}</AnimatePresence>` with `motion.div` wrapper
+- HeroSection now stays in DOM always, fades to opacity:0 with pointer-events:none when scrolled past threshold
+- Removed `mode="popLayout"` from gallery AnimatePresence for additional scroll stability
+- Verified with Agent Browser: scrollHeight stays constant (1138px) throughout entire scroll
+- Confirmed footer is visible and reachable at bottom of page
+- Confirmed hero fades out correctly at scrollY > 346 (60% of 577px viewport)
+
+Stage Summary:
+- Scroll is now smooth with no rollback/jank
+- Hero fades out without layout shift (opacity-only transition)
+- Page height remains stable throughout scroll
+- Footer properly visible at page bottom
