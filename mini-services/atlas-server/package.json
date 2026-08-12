@@ -1,0 +1,7 @@
+{
+  "name": "atlas-server",
+  "private": true,
+  "scripts": {
+    "dev": "bun --hot index.ts"
+  }
+}
