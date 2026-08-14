@@ -456,10 +456,9 @@ export function UploadDialog({ open, onOpenChange, onSuccess, initialData, categ
               />
             </div>
 
-            {/* Document Upload */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-emerald-400" /> File Materi (PDF, Opsional)
+                <FileText className="w-4 h-4 text-emerald-400" /> File Materi (PDF, Word, PPT)
               </label>
               <input
                 ref={documentInputRef}
