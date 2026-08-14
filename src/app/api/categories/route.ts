@@ -35,8 +35,11 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(category, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating category:', error);
+    if (error.code === 'P2002') {
+      return NextResponse.json({ error: 'Kategori dengan nama atau slug ini sudah ada.' }, { status: 400 });
+    }
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

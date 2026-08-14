@@ -163,7 +163,7 @@ export default function QuizEditorPage() {
                 variant="ghost"
                 size="icon"
                 className="w-9 h-9 rounded-full text-slate-400 hover:text-white hover:bg-white/10"
-                onClick={() => router.push('/editor')}
+                onClick={() => router.push('/davey2kpubg')}
               >
                 <ChevronLeft className="w-5 h-5" />
               </Button>

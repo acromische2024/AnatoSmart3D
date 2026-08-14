@@ -113,11 +113,14 @@ export function CategoryUploadDialog({ open, onOpenChange, onSuccess, initialDat
       if (imageFile) {
         const imgFormData = new FormData();
         imgFormData.append('file', imageFile);
-        const imgRes = await fetch('/api/preparations/upload-image', { // We reuse the preparation upload-image API
+        const imgRes = await fetch('/api/preparations/upload-image', {
           method: 'POST',
           body: imgFormData,
         });
-        if (!imgRes.ok) throw new Error('Image upload failed');
+        if (!imgRes.ok) {
+          const imgErr = await imgRes.json().catch(() => ({}));
+          throw new Error(imgErr.error || 'Gagal mengunggah gambar. Pastikan format benar dan ukuran tidak terlalu besar.');
+        }
         const imgData = await imgRes.json();
         imageUrl = imgData.url;
       }
@@ -144,16 +147,19 @@ export function CategoryUploadDialog({ open, onOpenChange, onSuccess, initialDat
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error('Failed to create/update category');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Failed to create/update category');
+      }
       const cat = await res.json();
 
       toast.success(isEditing ? `Kategori "${cat.name}" berhasil diperbarui!` : `Kategori "${cat.name}" berhasil ditambahkan!`);
       resetForm();
       onOpenChange(false);
       onSuccess(cat);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error('Gagal menyimpan kategori. Silakan coba lagi.');
+      toast.error(err.message || 'Gagal menyimpan kategori. Silakan coba lagi.');
     } finally {
       setUploading(false);
     }

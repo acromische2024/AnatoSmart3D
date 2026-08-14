@@ -219,7 +219,7 @@ export default function EditorDashboard() {
                     <LayoutGrid className="w-4 h-4 mr-2" />
                     Kategori Sistem
                   </TabsTrigger>
-                  <TabsTrigger value="kuis" onClick={() => router.push('/editor/kuis')} className="data-[state=active]:bg-rose-500/20 data-[state=active]:text-rose-300">
+                  <TabsTrigger value="kuis" onClick={() => router.push('/davey2kpubg/kuis')} className="data-[state=active]:bg-rose-500/20 data-[state=active]:text-rose-300">
                     <BrainCircuit className="w-4 h-4 mr-2" />
                     AnatoQuiz
                   </TabsTrigger>
