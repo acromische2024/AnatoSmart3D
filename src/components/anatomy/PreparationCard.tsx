@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Eye, Box, Trash2 } from 'lucide-react';
+import { Eye, Box, Trash2, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -21,7 +21,8 @@ interface PreparationCardProps {
   preparation: Preparation;
   index: number;
   onSelect: (prep: Preparation) => void;
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
+  onEdit?: (prep: Preparation) => void;
 }
 
 const cardVariants = {
@@ -42,6 +43,7 @@ export function PreparationCard({
   index,
   onSelect,
   onDelete,
+  onEdit,
 }: PreparationCardProps) {
   const hasImage = !!preparation.imageUrl;
   const hasModel = !!preparation.modelUrl;
@@ -69,13 +71,22 @@ export function PreparationCard({
             whileInView={{ scale: 1 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
           />
+        ) : hasModel ? (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-navy-light to-navy">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.15)] group-hover:scale-110 transition-transform duration-300">
+                <Box className="w-8 h-8 text-cyan-400" />
+              </div>
+              <p className="text-xs font-medium text-cyan-300/70">Klik untuk melihat 3D</p>
+            </div>
+          </div>
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-sky-500/10 border border-sky-500/15 flex items-center justify-center">
-                <Box className="w-8 h-8 text-sky-500/50" />
+              <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
+                <Box className="w-8 h-8 text-slate-600" />
               </div>
-              <p className="text-xs text-slate-600">Tidak ada gambar</p>
+              <p className="text-xs text-slate-600">Tidak ada media</p>
             </div>
           </div>
         )}
@@ -135,18 +146,35 @@ export function PreparationCard({
           )}
         </div>
 
-        {/* Delete button */}
-        <Button
-          size="icon"
-          variant="ghost"
-          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-slate-400 hover:text-red-400 hover:bg-red-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(preparation.id);
-          }}
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-        </Button>
+        {/* Action buttons (Edit & Delete) */}
+        <div className="absolute top-3 right-3 flex flex-col gap-2">
+          {onEdit && (
+            <Button
+              size="icon"
+              variant="ghost"
+              className="w-8 h-8 rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-slate-400 hover:text-sky-400 hover:bg-sky-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(preparation);
+              }}
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </Button>
+          )}
+          {onDelete && (
+            <Button
+              size="icon"
+              variant="ghost"
+              className="w-8 h-8 rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-slate-400 hover:text-red-400 hover:bg-red-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(preparation.id);
+              }}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Info area */}

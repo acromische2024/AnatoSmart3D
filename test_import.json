@@ -1,0 +1,318 @@
+{
+  "featureFlags": {
+    "shuffleCards": true,
+    "showHints": true,
+    "hintPenalty": 0.25,
+    "maxHintsAllowed": 3,
+    "caseSensitive": false,
+    "acceptPartialMatch": true
+  },
+  "questions": [
+    {
+      "nomor": 1,
+      "metadata": {
+        "blok": "Anatomi",
+        "tingkat_kompetensi_skdi": "1",
+        "sub_kompetensi_klinis": "Pemeriksaan Fisik",
+        "tingkat_kognitif": "C3 - Aplikasi",
+        "tingkat_kesulitan": "Sedang",
+        "kegawatdaruratan": false,
+        "xp": 20
+      },
+      "pertanyaan": "Perhatikan gambar otot berikut ini.<br><img src=\"https://ik.imagekit.io/kkskr/Kejia%20SFC/1.jpeg\" /><br><br>Otot yang terdapat pada gambar tersebut berfungsi untuk membantu dalam gerakan mengunyah, dengan dipersarafi oleh…<br><br><strong>Pertanyaan:</strong><br>Manakah pernyataan yang tepat mengenai inervasi dan embriologi otot tersebut?",
+      "pilihan": [
+        "N. V/2, derivat arcus pharyngeus kedua",
+        "N. V/3, derivat arcus pharyngeus pertama",
+        "N. V/3, derivat arcus pharyngeus ketiga",
+        "N. VII, derivat arcus pharyngeus kedua",
+        "N. VII, derivat arcus pharyngeus pertama"
+      ],
+      "jawaban_benar": "N. V/3, derivat arcus pharyngeus pertama",
+      "pembahasan": "Otot-otot pengunyah (masticatory muscles) yang ditampilkan pada gambar adalah musculus temporalis and musculus masseter. Kedua otot ini berasal dari derivat arcus pharyngeus (branchial arch) pertama dan dipersarafi oleh nervus mandibularis (N. V/3), yaitu cabang motorik dari nervus trigeminus. Arcus pharyngeus pertama juga menghasilkan tulang mandibula, malleus, incus, dan otot-otot pengunyah lainnya seperti musculus pterygoideus medialis dan lateralis.",
+      "eliminasi_opsi": {
+        "A": "Salah. N. V/2 (nervus maxillaris) bersifat hampir seluruhnya sensorik dan tidak mempersarafi otot pengunyah. Arcus pharyngeus kedua menghasilkan otot-otot ekspresi wajah yang dipersarafi N. VII.",
+        "B": "Benar. Otot pengunyah (temporalis, masseter, pterygoideus medialis dan lateralis) berasal dari derivat arcus pharyngeus pertama dan dipersarafi oleh N. V/3 (nervus mandibularis) yang memiliki komponen motorik.",
+        "C": "Salah. N. V/3 memang benar mempersarafi otot pengunyah, namun derivat yang tepat adalah arcus pharyngeus pertama, bukan ketiga. Arcus pharyngeus ketiga menghasilkan otot stylopharyngeus dan struktur lain yang dipersarafi N. IX.",
+        "D": "Salah. N. VII (nervus facialis) mempersarafi otot-otot ekspresi wajah (derivat arcus pharyngeus kedua), bukan otot pengunyah.",
+        "E": "Salah. N. VII tidak mempersarafi otot pengunyah. Meskipun arcus pharyngeus pertama adalah derivat yang benar, nervus yang tepat adalah N. V/3, bukan N. VII."
+      }
+    },
+    {
+      "nomor": 3,
+      "metadata": {
+        "blok": "Anatomi",
+        "tingkat_kompetensi_skdi": "1",
+        "sub_kompetensi_klinis": "Pemeriksaan Fisik",
+        "tingkat_kognitif": "C3 - Aplikasi",
+        "tingkat_kesulitan": "Mudah",
+        "kegawatdaruratan": false,
+        "xp": 10
+      },
+      "pertanyaan": "Pembuluh darah utama yang memvaskularisasi wajah antara lain…<br><br><strong>Pertanyaan:</strong><br>Manakah pasangan pembuluh darah yang tepat?",
+      "pilihan": [
+        "A. carotis interna, V. emissariae",
+        "A. carotis externa, V. jugularis externa",
+        "A. carotis externa, V. jugularis interna",
+        "A. facialis, V. facialis",
+        "A. facialis, V. jugularis interna"
+      ],
+      "jawaban_benar": "A. carotis externa, V. jugularis interna",
+      "pembahasan": "Vaskularisasi wajah utama berasal dari arteri carotis externa (melalui cabang-cabangnya seperti arteri facialis, temporalis superficialis, dan maxillaris). Drainase vena wajah sebagian besar mengalir ke vena jugularis interna melalui vena retromandibularis dan vena facialis yang beranastomosis dengan vena jugularis interna di level sudut mandibula.",
+      "eliminasi_opsi": {
+        "A": "Salah. A. carotis interna tidak memberikan suplai signifikan ke wajah (hanya ke orbit dan dahi melalui a. ophthalmica). V. emissariae adalah vena-vena kecil yang menghubungkan sinus durae matres dengan vena ekstrakranial, bukan pembuluh drainase utama wajah.",
+        "B": "Salah. A. carotis externa memang benar sebagai suplai arteri wajah, namun V. jugularis externa terletak di superfisialis regio colli dan tidak menjadi drainase utama wajah.",
+        "C": "Benar. A. carotis externa memberikan suplai arteri utama ke wajah melalui cabang-cabangnya, sedangkan V. jugularis interna merupakan drainase vena utama dari wajah dan kepala.",
+        "D": "Salah. A. facialis memang merupakan cabang dari a. carotis externa yang mensuplai wajah, namun V. facialis bukan pembuluh drainase utama karena beranastomosis dengan vena jugularis interna.",
+        "E": "Salah. A. facialis hanya merupakan salah satu cabang dari a. carotis externa, bukan pembuluh utama vaskularisasi wajah secara keseluruhan. Meskipun V. jugularis interna benar sebagai drainase, pasangan ini tidak lengkap."
+      }
+    },
+    {
+      "nomor": 6,
+      "metadata": {
+        "blok": "Anatomi",
+        "tingkat_kompetensi_skdi": "1",
+        "sub_kompetensi_klinis": "Penegakan Diagnosis",
+        "tingkat_kognitif": "C4 - Analisis",
+        "tingkat_kesulitan": "Sedang",
+        "kegawatdaruratan": false,
+        "xp": 20
+      },
+      "pertanyaan": "N. maxillaris merupakan cabang dari nervus trigeminus yang mempersarafi daerah bawah kelopak mata, hidung, serta bagian atas bibir. Nervus tersebut merupakan satu-satunya cabang nervus trigeminus yang memiliki komponen motorik.<br><br><strong>Pertanyaan:</strong><br>Pernyataan di atas adalah…",
+      "pilihan": [
+        "Benar",
+        "Salah"
+      ],
+      "jawaban_benar": "Salah",
+      "pembahasan": "Pernyataan tersebut salah. N. maxillaris (N. V/2) bersifat hampir seluruhnya sensorik dan tidak memiliki komponen motorik. Cabang nervus trigeminus yang memiliki komponen motorik adalah N. mandibularis (N. V/3), yang mempersarafi otot-otot pengunyah (m. temporalis, m. masseter, m. pterygoideus medialis dan lateralis) serta beberapa otot lain seperti m. tensor veli palatini dan m. tensor tympani.",
+      "eliminasi_opsi": {
+        "A": "Salah. N. maxillaris (V/2) bersifat hampir seluruhnya sensorik. Cabang trigeminus yang memiliki komponen motorik adalah N. mandibularis (V/3), bukan N. maxillaris.",
+        "B": "Benar. Pernyataan tersebut salah karena N. maxillaris tidak memiliki komponen motorik. Komponen motorik trigeminus terdapat pada N. mandibularis (V/3)."
+      }
+    },
+    {
+      "nomor": 7,
+      "metadata": {
+        "blok": "Anatomi",
+        "tingkat_kompetensi_skdi": "1",
+        "sub_kompetensi_klinis": "Pemeriksaan Fisik",
+        "tingkat_kognitif": "C3 - Aplikasi",
+        "tingkat_kesulitan": "Sedang",
+        "kegawatdaruratan": false,
+        "xp": 20
+      },
+      "pertanyaan": "Perhatikan gambar penampang lintang regio colli berikut ini.<br><img src=\"https://ik.imagekit.io/kkskr/Kejia%20SFC/6-7.png\" /><br><br>Musculus yang berjalan secara diagonal dan membagi regio colli menjadi trigonum cervicale anterius dan posterius adalah…<br><br><strong>Pertanyaan:</strong><br>Manakah otot yang dimaksud?",
+      "pilihan": [
+        "M. sternocleidomastoideus",
+        "M. pterygoideus lateralis",
+        "M. omohyoideus",
+        "M. thyrohyoideus",
+        "M. stylohyoideus"
+      ],
+      "jawaban_benar": "M. sternocleidomastoideus",
+      "pembahasan": "Musculus sternocleidomastoideus (SCM) adalah otot besar yang berjalan secara diagonal dari processus mastoideus dan linea nuchae superior ke sternum dan clavicula. Otot ini secara anatomis membagi regio colli menjadi dua trigonum utama: trigonum cervicale anterius (di anterior SCM) dan trigonum cervicale posterius (di posterior SCM). SCM juga membatasi trigonum caroticum di bagian superior.",
+      "eliminasi_opsi": {
+        "A": "Benar. M. sternocleidomastoideus berjalan secara diagonal dari processus mastoideus ke sternum dan clavicula, membagi regio colli menjadi trigonum anterius dan posterius.",
+        "B": "Salah. M. pterygoideus lateralis adalah otot pengunyah yang terletak di fossa infratemporalis regio kepala, bukan di leher.",
+        "C": "Salah. M. omohyoideus terletak di dalam trigonum cervicale anterius dan membatasi trigonum caroticum di inferior, namun tidak membagi regio colli menjadi anterius dan posterius.",
+        "D": "Salah. M. thyrohyoideus adalah otot infrahyoid yang terletak di trigonum cervicale anterius, tidak membagi regio colli.",
+        "E": "Salah. M. stylohyoideus adalah otot suprahyoid yang membatasi trigonum submandibulare dan trigonum caroticum, namun tidak membagi regio colli menjadi anterius dan posterius."
+      }
+    },
+    {
+      "nomor": 11,
+      "metadata": {
+        "blok": "Anatomi",
+        "tingkat_kompetensi_skdi": "1",
+        "sub_kompetensi_klinis": "Pemeriksaan Fisik",
+        "tingkat_kognitif": "C4 - Analisis",
+        "tingkat_kesulitan": "Sulit",
+        "kegawatdaruratan": false,
+        "xp": 30
+      },
+      "pertanyaan": "Di antara otot-otot berikut ini, otot manakah yang tidak terkait trigonum cervicale posterius?<br><br><strong>Pertanyaan:</strong><br>Pilih pasangan otot yang TIDAK termasuk dalam trigonum cervicale posterius.",
+      "pilihan": [
+        "M. omohyoideus dan M. trapezius",
+        "M. scalenus anterior dan M. splenius capitis",
+        "M. digastricus dan M. stylohyoideus",
+        "M. sternocleidomastoideus dan M. scalenus posterior",
+        "M. levator scapulae dan M. stylohyoideus"
+      ],
+      "jawaban_benar": "M. digastricus dan M. stylohyoideus",
+      "pembahasan": "Trigonum cervicale posterius (lateral neck triangle) dibatasi oleh m. sternocleidomastoideus di anterior, m. trapezius di posterior, dan clavicula di inferior. Otot-otot yang terkandung di dalamnya meliputi m. omohyoideus (membatasi trigonum omoclaviculare and trigonum occipitale), m. splenius capitis, m. levator scapulae, m. scalenus anterior, medius, dan posterior. M. digastricus dan m. stylohyoideus terletak di trigonum cervicale anterius (submandibular region), bukan di trigonum posterius.",
+      "eliminasi_opsi": {
+        "A": "Salah. M. omohyoideus terletak di trigonum cervicale posterius dan membatasi trigonum omoclaviculare. M. trapezius membatasi trigonum posterius di sisi posterior.",
+        "B": "Salah. M. scalenus anterior dan m. splenius capitis keduanya terletak di dalam trigonum cervicale posterius.",
+        "C": "Benar. M. digastricus dan m. stylohyoideus terletak di trigonum cervicale anterius (regio submandibularis), bukan di trigonum cervicale posterius.",
+        "D": "Salah. M. sternocleidomastoideus membatasi trigonum posterius di sisi anterior, dan m. scalenus posterior terletak di dalam trigonum posterius.",
+        "E": "Salah. M. levator scapulae terletak di dalam trigonum cervicale posterius. Meskipun m. stylohyoideus tidak terletak di trigonum posterius, pasangan ini tidak sepenuhnya benar karena m. levator scapulae memang termasuk."
+      }
+    },
+    {
+      "nomor": 14,
+      "metadata": {
+        "blok": "Neurologi",
+        "tingkat_kompetensi_skdi": "2",
+        "sub_kompetensi_klinis": "Penegakan Diagnosis",
+        "tingkat_kognitif": "C4 - Analisis",
+        "tingkat_kesulitan": "Sedang",
+        "kegawatdaruratan": false,
+        "xp": 20
+      },
+      "pertanyaan": "Bell's palsy merupakan kelainan akibat kelumpuhan pada nervus facialis (N. VII), sehingga mengakibatkan hilangnya fungsi motorik regio fasialis kontralateral.<br><br><strong>Pertanyaan:</strong><br>Pernyataan di atas adalah…",
+      "pilihan": [
+        "Benar",
+        "Salah"
+      ],
+      "jawaban_benar": "Salah",
+      "pembahasan": "Pernyataan tersebut salah karena Bell's palsy menyebabkan kelumpuhan nervus facialis perifer yang mengakibatkan hilangnya fungsi motorik regio fasialis IPSILATERAL (sisi yang sama dengan lesi), bukan kontralateral. Lesi pada nervus facialis perifer (di distal nucleus nervi facialis) menyebabkan kelumpuhan seluruh otot ekspresi wajah pada sisi ipsilateral, termasuk hilangnya kemampuan mengedipkan mata, mengangkat alis, dan menggerakkan sudut mulut.",
+      "eliminasi_opsi": {
+        "A": "Salah. Bell's palsy menyebabkan kelumpuhan ipsilateral (sisi sama dengan lesi), bukan kontralateral. Kelumpuhan kontralateral terjadi pada lesi kortikal (upper motor neuron lesion) seperti stroke.",
+        "B": "Benar. Pernyataan tersebut salah. Lesi N. VII perifer pada Bell's palsy menyebabkan kelumpuhan otot ekspresi wajah pada sisi ipsilateral."
+      }
+    },
+    {
+      "clue": "Seorang mahasiswa kedokteran sedang mempelajari lapisan-lapisan penutup cranium. Diketahui bahwa lapisan penutup cranium terdiri dari lima lapisan jaringan ikat. Salah satu lapisan tersebut dinamakan 'dangerous area' karena tidak memiliki katup vena sehingga dapat menjadi pintu masuk infeksi dari kulit kepala ke sinus durae matres jika terjadi luka atau infeksi. Lapisan apakah yang dimaksud?",
+      "answer": "loose connective tissue",
+      "hints": [
+        "Lapisan ini terletak di antara lapisan galea aponeurotica dan lapisan periosteum (pericranium), dan sering disebut sebagai subaponeurotic space.",
+        "Lapisan ini mengandung vena emissariae yang menghubungkan vena kulit kepala dengan sinus durae matres tanpa katup, sehingga infeksi dapat menyebar ke intrakranial.",
+        "Nama lapisan ini mengandung kata 'connective tissue' dan sering disebut sebagai 'loose' karena sifat jaringannya yang longgar."
+      ],
+      "explanation": "Lapisan loose connective tissue (jaringan ikat lunak) atau subaponeurotic space merupakan lapisan ketiga dari lima lapisan penutup cranium (kulit, jaringan ikat superfisial, galea aponeurotica, loose connective tissue, dan periosteum). Lapisan ini disebut 'dangerous area of scalp' karena vena emissariae yang melewatinya tidak memiliki katup, sehingga infeksi dari kulit kepala dapat menyebar ke sinus durae matres (seperti sinus sagitalis superior) dan menyebabkan komplikasi intrakranial seperti meningitis atau abses otak.",
+      "metadata": {
+        "blok": "Anatomi",
+        "sub_kompetensi_klinis": "Isian Singkat",
+        "tingkat_kesulitan": "Sedang",
+        "xp": 20
+      }
+    },
+    {
+      "clue": "Seorang pasien datang dengan keluhan hidung tampak melebar dan sayap hidung mengembang saat bernapas. Dokter menjelaskan bahwa ada beberapa otot yang mengontrol bentuk dan gerakan hidung. Sebutkan otot-otot yang termasuk ke dalam kelompok nasalis!",
+      "answer": "m. nasalis pars transversa dan alaris, m. procerus, m. depressor septi nasi",
+      "hints": [
+        "Kelompok otot nasalis terdiri dari otot yang berfungsi mengempiskan sayap hidung, menekan septum, dan mengkerutkan kulit hidung.",
+        "Otot nasalis memiliki dua bagian: pars transversa yang menekan sayap hidung ke septum, dan pars alaris yang melebarkan sayap hidung.",
+        "Selain nasalis, ada otot yang mengangkat dan menekan septum nasi, serta otot yang mengkerutkan kulit di root hidung."
+      ],
+      "explanation": "Kelompok otot nasalis terdiri dari: (1) M. nasalis dengan dua bagian — pars transversa (compressor naris) yang menekan sayap hidung ke septum, dan pars alaris (dilator naris) yang melebarkan sayap hidung; (2) M. procerus yang mengkerutkan kulit di root hidung dan menurunkan alis; serta (3) M. depressor septi nasi yang menarik septum nasi ke bawah. Ketiga otot ini dipersarafi oleh nervus facialis (N. VII) dan berfungsi dalam ekspresi wajah serta ventilasi nasal.",
+      "metadata": {
+        "blok": "Anatomi",
+        "sub_kompetensi_klinis": "Isian Singkat",
+        "tingkat_kesulitan": "Sulit",
+        "xp": 30
+      }
+    },
+    {
+      "clue": "Perhatikan gambar ekspresi wajah berikut ini.<br><img src=\"https://ik.imagekit.io/kkskr/Kejia%20SFC/5.png\" /><br><br>Seorang pasien menunjukkan ekspresi wajah seperti pada gambar di atas saat diminta untuk tersenyum lebar oleh dokter. Ekspresi ini melibatkan kontraksi beberapa otot ekspresi wajah. Sebutkan otot apa saja yang berperan dalam membentuk ekspresi yang ditunjukkan pada gambar tersebut!",
+      "answer": "m. risorius, m. levator labii superioris, m. depressor labii inferioris",
+      "hints": [
+        "Ekspresi senyum lebar melibatkan otot-otot yang mengangkat sudut mulut ke lateral dan ke atas, serta menurunkan bibir inferior.",
+        "Otot risorius berfungsi menarik sudut mulut ke lateral (seperti 'risor' = tertawa). Otot levator labii superioris mengangkat bibir atas, dan depressor labii inferioris menurunkan bibir bawah.",
+        "Tiga otot ini semuanya dipersarafi oleh nervus facialis (N. VII) dan merupakan otot ekspresi wajah yang mengontrol gerakan bibir dan sudut mulut."
+      ],
+      "explanation": "Ekspresi senyum lebar pada gambar melibatkan kontraksi: (1) M. risorius yang menarik sudut mulut ke lateral; (2) M. levator labii superioris yang mengangkat bibir atas dan membantu membentuk senyum; serta (3) M. depressor labii inferioris yang menurunkan bibir bawah. Ketiga otot ini merupakan otot ekspresi wajah yang dipersarafi oleh nervus facialis (N. VII) dan berasal dari derivat arcus pharyngeus kedua.",
+      "metadata": {
+        "blok": "Anatomi",
+        "sub_kompetensi_klinis": "Isian Singkat",
+        "tingkat_kesulitan": "Sulit",
+        "xp": 30
+      }
+    },
+    {
+      "clue": "Seorang mahasiswa kedokteran sedang mempelajari anatomi regio colli. Diketahui bahwa di leher terdapat sebuah trigonum yang dibatasi oleh M. stylohyoideus di bagian superior dan M. sternocleidomastoideus di bagian posterior. Trigonum ini penting karena di dalamnya terdapat pembuluh darah besar leher. Apakah nama trigonum tersebut?",
+      "answer": "trigonum caroticum",
+      "hints": [
+        "Trigonum ini dinamakan berdasarkan arteri karotis yang terdapat di dalamnya, yaitu arteri karotis communis dan interna.",
+        "Trigonum ini juga dikenal sebagai 'triangle of ausultation' dalam konteks tertentu, namun nama anatomis utamanya berkaitan dengan pembuluh karotis.",
+        "Nama trigonum ini diawali dengan huruf 'T' dan diikuti dengan nama pembuluh darah utama yang melewatinya."
+      ],
+      "explanation": "Trigonum caroticum (carotid triangle) adalah salah satu subdivisi dari trigonum cervicale anterius. Trigonum ini dibatasi oleh m. sternocleidomastoideus di posterior, m. stylohyoideus dan m. digastricus di superior, dan m. omohyoideus di inferior. Di dalam trigonum caroticum terdapat struktur-struktur penting seperti a. carotis communis, a. carotis interna, v. jugularis interna, n. vagus (X), n. hypoglossus (XII), dan n. glossopharyngeus (IX).",
+      "metadata": {
+        "blok": "Anatomi",
+        "sub_kompetensi_klinis": "Isian Singkat",
+        "tingkat_kesulitan": "Sedang",
+        "xp": 20
+      }
+    },
+    {
+      "clue": "Seorang pasien menjalani operasi thyroid. Dokter bedah harus memahami lapisan-lapisan fascia leher untuk mencapai kelenjar thyroid dengan aman. Diketahui bahwa di leher terdapat sebuah kompartemen yang berisi organ-organ visceral seperti esofagus, laring, trakea, dan kelenjar endokrin. Kompartemen ini dikelilingi oleh lamina pretrachealis. Sebutkan nama kompartemen tersebut dan sebutkan nama fascia pembungkusnya!",
+      "answer": "kompartemen visceralis, lamina pretrachealis",
+      "hints": [
+        "Kompartemen ini berisi organ-organ visceral (viscera) dari traktus respiratorius, digestivus, dan kelenjar endokrin.",
+        "Fascia pembungkusnya adalah bagian dari fascia cervicalis profunda yang terletak di anterior trakea dan membentuk dinding anterior kompartemen.",
+        "Nama kompartemen berawalan 'V' (visceralis) dan fascia pembungkusnya berawalan 'L' (lamina) dengan awalan 'pre-' yang menunjukkan letaknya di depan trakea."
+      ],
+      "explanation": "Kompartemen visceralis (visceral compartment) adalah salah satu dari tiga kompartemen utama regio colli (visceralis, vasculare, vertebralis). Kompartemen ini dikelilingi oleh lamina pretrachealis (bagian dari fascia cervicalis profunda). Isi kompartemen visceralis meliputi: (1) Esofagus (bagian dari tractus digestivus); (2) Laring dan trakea (bagian dari tractus respiratorius); serta (3) Glandula thyroid, parathyroid, dan thymus (glandula endokrin). Pemahaman kompartemen ini penting untuk prosedur bedah leher dan pencegahan komplikasi.",
+      "metadata": {
+        "blok": "Anatomi",
+        "sub_kompetensi_klinis": "Isian Singkat",
+        "tingkat_kesulitan": "Sulit",
+        "xp": 30
+      }
+    },
+    {
+      "clue": "Seorang mahasiswa kedokteran sedang mempelajari anatomi vaskular regio colli. Di dalam kompartemen vasculare leher terdapat pembuluh darah besar yang mensuplai darah ke dan dari otak serta wajah. Sebutkan pembuluh darah apa saja yang terdapat di dalam kompartemen vasculare!",
+      "answer": "a. carotis communis, a. carotis interna, v. jugularis interna",
+      "hints": [
+        "Kompartemen vasculare terletak di antara kompartemen visceralis dan vertebralis, dan berisi pembuluh darah utama leher.",
+        "Terdapat dua arteri utama (salah satunya bercabang menjadi arteri yang masuk ke dalam cranium) dan satu vena besar yang berjalan bersama arteri tersebut.",
+        "Arteri-arteri tersebut berasal dari arcus aorta/a. brachiocephalica dan vena tersebut merupakan drainase utama dari otak dan wajah."
+      ],
+      "explanation": "Kompartemen vasculare (vascular compartment) berisi pembuluh darah utama leher: (1) A. carotis communis — arteri besar yang naik ke leher dan bercabang menjadi a. carotis interna dan a. carotis externa di level cartilage thyroidea; (2) A. carotis interna — melanjutkan ke dalam cranium melalui foramen caroticum untuk mensuplai otak; dan (3) V. jugularis interna — vena besar yang berjalan bersama a. carotis interna dalam carotid sheath (vagina carotica) sebagai drainase utama dari otak, wajah, dan leher.",
+      "metadata": {
+        "blok": "Anatomi",
+        "sub_kompetensi_klinis": "Isian Singkat",
+        "tingkat_kesulitan": "Sedang",
+        "xp": 20
+      }
+    },
+    {
+      "clue": "Seorang mahasiswa kedokteran sedang mempelajari otot-otot leher. Diketahui ada sebuah otot yang berorigo pada margo superior scapulae dan berinsersio pada tepi inferior os hyoideum. Otot ini juga menjadi salah satu otot yang membatasi trigonum-trigonum colli. Apakah nama otot tersebut?",
+      "answer": "m. omohyoideus",
+      "hints": [
+        "Otot ini termasuk dalam kelompok otot infrahyoid (strap muscles) yang berfungsi menurunkan os hyoideum.",
+        "Nama otot ini mengandung dua kata: nama tulang bahu (scapula) dan nama tulang hyoid.",
+        "Otot ini memiliki tendon intermedius yang membentuk lengkungan dan membatasi trigonum caroticum di bagian inferior."
+      ],
+      "explanation": "Musculus omohyoideus adalah otot infrahyoid yang berorigo dari margo superior scapulae (incisura scapulae) dan berinsersio pada tepi inferior os hyoideum. Otot ini memiliki tendon intermedius yang melekat pada clavicula dan fascia cervicalis profunda, membentuk lengkungan yang membatasi trigonum caroticum di inferior dan trigonum omoclaviculare (subclavian triangle) di superior. Otot ini dipersarafi oleh ansa cervicalis (C1-C3) dan berfungsi menurunkan os hyoideum serta laring selama menelan dan berbicara.",
+      "metadata": {
+        "blok": "Anatomi",
+        "sub_kompetensi_klinis": "Isian Singkat",
+        "tingkat_kesulitan": "Sedang",
+        "xp": 20
+      }
+    },
+    {
+      "clue": "Seorang pasien dengan infeksi gigi berat datang ke IGD. Dokter memeriksa kelenjar getah bening pasien dan menemukan pembesaran di leher. Diketahui bahwa di leher terdapat kelompok nodus lymphoidei yang menjadi stasiun akhir drainase limfe dari seluruh kepala dan leher sebelum masuk ke ductus thoracicus atau ductus lymphaticus dexter. Apakah nama nodus lymphoidei tersebut?",
+      "answer": "nodi lymphoidei cervicales profundi",
+      "hints": [
+        "Nodus-nodus ini terletak di sepanjang vena jugularis interna dan merupakan stasiun akhir drainase limfe kepala dan leher.",
+        "Nama nodus ini mengandung kata 'cervicales' (leher) dan 'profundi' (dalam), menunjukkan letaknya yang dalam di leher.",
+        "Kelompok nodus ini terbagi menjadi beberapa subkelompok: superior, inferior, lateralis, dan medialis di sepanjang pembuluh darah besar leher."
+      ],
+      "explanation": "Nodi lymphoidei cervicales profundi (deep cervical lymph nodes) adalah kelompok nodus limfe yang terletak di sepanjang vena jugularis interna di dalam carotid sheath. Nodus-nodus ini menjadi stasiun akhir drainase limfe dari seluruh kepala dan leher melalui rantai nodus limfe superfisialis dan profundus lainnya. Efferent lymphatics dari nodus ini membentuk truncus jugularis yang bergabung dengan truncus subclavius dan bronchomediastinalis untuk membentuk ductus lymphaticus dexter (sisi kanan) atau masuk ke ductus thoracicus (sisi kiri).",
+      "metadata": {
+        "blok": "Anatomi",
+        "sub_kompetensi_klinis": "Isian Singkat",
+        "tingkat_kesulitan": "Sedang",
+        "xp": 20
+      }
+    },
+    {
+      "clue": "Seorang pasien wanita berusia 35 tahun datang dengan keluhan kelemahan otot yang memburuk sepanjang hari dan membaik setelah istirahat. Pemeriksaan fisik menunjukkan ptosis bilateral dan kelemahan ekstremitas proksimal. Diketahui penyakit ini disebabkan oleh gangguan autoimun yang menyerang reseptor asetilkolin pada neuromuscular junction. Apakah nama penyakit tersebut?",
+      "answer": "myasthenia gravis",
+      "hints": [
+        "Penyakit ini merupakan gangguan autoimun yang menghasilkan antibodi terhadap reseptor asetilkolin postsinaptik pada neuromuscular junction.",
+        "Ciri klinis utama adalah kelemahan otot yang memburuk dengan aktivitas dan membaik dengan istirahat (fatigability), sering melibatkan otot-otot bulbar dan ekstremitas proksimal.",
+        "Nama penyakit ini berasal dari bahasa Yunani: 'myasthenia' berarti kelemahan otot, dan 'gravis' berarti berat."
+      ],
+      "explanation": "Myasthenia gravis adalah penyakit autoimun kronis yang ditandai dengan produksi antibodi terhadap reseptor asetilkolin nikotinik (AChR) pada membran postsinaptik neuromuscular junction. Antibodi ini menyebabkan destruksi reseptor, complement-mediated damage, dan blocking of ACh binding, yang mengakibatkan gangguan transmisi impuls saraf-ke-otot. Manifestasi klinis meliputi ptosis, diplopia, disfagia, disartria, dan kelemahan ekstremitas proksimal yang memburuk dengan aktivitas dan membaik dengan istirahat. Diagnosis ditegakkan dengan tes antibodi AChR, elektrodiagnostik (repetitive nerve stimulation), dan edrophonium test.",
+      "metadata": {
+        "blok": "Neurologi",
+        "sub_kompetensi_klinis": "Isian Singkat",
+        "tingkat_kesulitan": "Sedang",
+        "xp": 20
+      }
+    }
+  ]
+}

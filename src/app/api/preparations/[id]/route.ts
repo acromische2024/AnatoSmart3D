@@ -57,6 +57,8 @@ export async function PUT(
         ...(body.imageUrl !== undefined && { imageUrl: body.imageUrl }),
         ...(body.modelUrl !== undefined && { modelUrl: body.modelUrl }),
         ...(body.thumbnailUrl !== undefined && { thumbnailUrl: body.thumbnailUrl }),
+        ...(body.youtubeUrl !== undefined && { youtubeUrl: body.youtubeUrl }),
+        ...(body.documentUrl !== undefined && { documentUrl: body.documentUrl }),
       },
     });
     return NextResponse.json(preparation);

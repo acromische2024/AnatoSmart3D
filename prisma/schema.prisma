@@ -5,8 +5,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Preparation {
@@ -17,6 +18,78 @@ model Preparation {
   imageUrl    String?
   modelUrl    String?
   thumbnailUrl String?
+  youtubeUrl  String?
+  documentUrl String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  markers     Marker[]
+}
+
+model Marker {
+  id            String      @id @default(cuid())
+  preparationId String
+  label         String
+  description   String?
+  positionX     Float
+  positionY     Float
+  positionZ     Float
+  color         String?     @default("#38bdf8")
+  order         Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  preparation   Preparation @relation(fields: [preparationId], references: [id], onDelete: Cascade)
+}
+
+model SystemCategory {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  slug          String   @unique
+  description   String?
+  imageUrl      String?
+  youtubeUrl    String?
+  extraVideoUrl String?
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  packages      QuizPackage[]
+}
+
+model QuizPackage {
+  id            String   @id @default(cuid())
+  name          String
+  categorySlug  String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  category      SystemCategory @relation(fields: [categorySlug], references: [slug], onDelete: Cascade)
+  questions     QuizQuestion[]
+}
+
+model QuizQuestion {
+  id            String   @id @default(cuid())
+  packageId     String   
+  type          String   // "MULTIPLE_CHOICE" or "FLASHCARD"
+  question      String
+  imageUrl      String?
+  explanation   String?
+  correctAnswer String?  // For FLASHCARD type
+  
+  options       QuizOption[]
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  package       QuizPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+}
+
+model QuizOption {
+  id            String   @id @default(cuid())
+  questionId    String
+  text          String
+  isCorrect     Boolean  @default(false)
+  explanation   String?  // Elimination explanation
+  
+  question      QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Dialog,
@@ -26,6 +26,8 @@ import {
   Box,
   Loader2,
   FileUp,
+  Youtube,
+  FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -37,38 +39,42 @@ type Preparation = {
   imageUrl: string | null;
   modelUrl: string | null;
   thumbnailUrl: string | null;
+  youtubeUrl: string | null;
+  documentUrl: string | null;
   createdAt: string;
   updatedAt: string;
+};
+
+type SystemCategory = {
+  id: string;
+  name: string;
+  slug: string;
 };
 
 interface UploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: (prep: Preparation) => void;
+  initialData?: Preparation;
+  categories: SystemCategory[];
 }
 
-const CATEGORIES = [
-  'Osteologi',
-  'Arthrologi',
-  'Miologi',
-  'Splanchnologi',
-  'Angiologi',
-  'Neurologi',
-  'Histologi',
-  'Embriologi',
-  'Lainnya',
-];
-
-export function UploadDialog({ open, onOpenChange, onSuccess }: UploadDialogProps) {
+export function UploadDialog({ open, onOpenChange, onSuccess, initialData, categories }: UploadDialogProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [modelFile, setModelFile] = useState<File | null>(null);
+  const [modelUrlInput, setModelUrlInput] = useState('');
+  const [youtubeUrlInput, setYoutubeUrlInput] = useState('');
+  const [documentFile, setDocumentFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const modelInputRef = useRef<HTMLInputElement>(null);
+  const documentInputRef = useRef<HTMLInputElement>(null);
+
+  const isEditing = !!initialData;
 
   const resetForm = useCallback(() => {
     setTitle('');
@@ -76,8 +82,30 @@ export function UploadDialog({ open, onOpenChange, onSuccess }: UploadDialogProp
     setCategory('');
     setImageFile(null);
     setModelFile(null);
+    setModelUrlInput('');
+    setYoutubeUrlInput('');
+    setDocumentFile(null);
     setImagePreview(null);
   }, []);
+
+  useEffect(() => {
+    if (open) {
+      if (initialData) {
+        setTitle(initialData.title);
+        setDescription(initialData.description || '');
+        setCategory(initialData.category || '');
+        setYoutubeUrlInput(initialData.youtubeUrl || '');
+        if (initialData.modelUrl && initialData.modelUrl.includes('p3d.in')) {
+          setModelUrlInput(initialData.modelUrl);
+        }
+        if (initialData.imageUrl) {
+          setImagePreview(initialData.imageUrl);
+        }
+      } else {
+        resetForm();
+      }
+    }
+  }, [open, initialData, resetForm]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -96,6 +124,13 @@ export function UploadDialog({ open, onOpenChange, onSuccess }: UploadDialogProp
     }
   };
 
+  const handleDocumentSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setDocumentFile(file);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!title.trim()) {
       toast.error('Judul preparat wajib diisi');
@@ -106,6 +141,8 @@ export function UploadDialog({ open, onOpenChange, onSuccess }: UploadDialogProp
     try {
       let imageUrl: string | null = null;
       let modelUrl: string | null = null;
+      let documentUrl: string | null = null;
+      let youtubeUrl: string | null = youtubeUrlInput.trim() || null;
 
       // Upload image if selected
       if (imageFile) {
@@ -131,26 +168,64 @@ export function UploadDialog({ open, onOpenChange, onSuccess }: UploadDialogProp
         if (!mdlRes.ok) throw new Error('Model upload failed');
         const mdlData = await mdlRes.json();
         modelUrl = mdlData.url;
+      } else if (modelUrlInput.trim()) {
+        modelUrl = modelUrlInput.trim();
       }
 
-      // Create preparation record
-      const res = await fetch('/api/preparations', {
-        method: 'POST',
+      // Upload document if selected
+      if (documentFile) {
+        const docFormData = new FormData();
+        docFormData.append('file', documentFile);
+        const docRes = await fetch('/api/preparations/upload-document', {
+          method: 'POST',
+          body: docFormData,
+        });
+        if (!docRes.ok) throw new Error('Document upload failed');
+        const docData = await docRes.json();
+        documentUrl = docData.url;
+      }
+
+      // Create or update preparation record
+      const url = isEditing ? `/api/preparations/${initialData.id}` : '/api/preparations';
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const payload: any = {
+        title: title.trim(),
+        description: description.trim() || null,
+        category: category || null,
+        youtubeUrl,
+      };
+
+      if (imageUrl) {
+        payload.imageUrl = imageUrl;
+        payload.thumbnailUrl = imageUrl;
+      }
+      if (modelUrl) {
+        payload.modelUrl = modelUrl;
+        
+        // Gunakan thumbnail p3d.in jika tidak ada gambar custom
+        const hasCustomImage = isEditing ? !!initialData?.imageUrl : false;
+        if (!imageUrl && !hasCustomImage && modelUrl.includes('p3d.in')) {
+          const match = modelUrl.match(/p3d\.in\/(?:e\/)?([a-zA-Z0-9]+)/);
+          if (match && match[1]) {
+             payload.thumbnailUrl = `https://p3d.in/model_data/snapshot/${match[1]}`;
+          }
+        }
+      }
+      if (documentUrl) {
+        payload.documentUrl = documentUrl;
+      }
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: title.trim(),
-          description: description.trim() || null,
-          category: category || null,
-          imageUrl,
-          modelUrl,
-          thumbnailUrl: imageUrl,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) throw new Error('Failed to create preparation');
       const prep = await res.json();
 
-      toast.success(`Preparat "${prep.title}" berhasil ditambahkan!`);
+      toast.success(isEditing ? `Preparat "${prep.title}" berhasil diperbarui!` : `Preparat "${prep.title}" berhasil ditambahkan!`);
       resetForm();
       onOpenChange(false);
       onSuccess(prep);
@@ -169,10 +244,10 @@ export function UploadDialog({ open, onOpenChange, onSuccess }: UploadDialogProp
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
               <Upload className="w-5 h-5 text-sky-400" />
-              Tambah Preparat Baru
+              {isEditing ? 'Edit Preparat' : 'Tambah Preparat Baru'}
             </DialogTitle>
             <DialogDescription className="text-slate-400">
-              Unggah foto dan/atau model 3D dari preparat anatomi.
+              {isEditing ? 'Ubah informasi atau perbarui media preparat ini.' : 'Unggah foto dan/atau model 3D dari preparat anatomi.'}
             </DialogDescription>
           </DialogHeader>
 
@@ -198,11 +273,14 @@ export function UploadDialog({ open, onOpenChange, onSuccess }: UploadDialogProp
                   <SelectValue placeholder="Pilih kategori..." />
                 </SelectTrigger>
                 <SelectContent className="bg-navy-light border-sky-500/15">
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat} className="text-foreground focus:bg-sky-500/10 focus:text-sky-300">
-                      {cat}
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.name} className="text-foreground focus:bg-sky-500/10 focus:text-sky-300">
+                      {cat.name}
                     </SelectItem>
                   ))}
+                  <SelectItem value="Lainnya" className="text-foreground focus:bg-sky-500/10 focus:text-sky-300">
+                    Lainnya
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -281,38 +359,138 @@ export function UploadDialog({ open, onOpenChange, onSuccess }: UploadDialogProp
             {/* 3D Model upload */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                <Box className="w-4 h-4" /> Model 3D
+                <Box className="w-4 h-4" /> Model 3D (File atau Link p3d.in)
+              </label>
+              
+              {!modelFile && (
+                <div className="mb-2">
+                  <Input
+                    value={modelUrlInput}
+                    onChange={(e) => {
+                      setModelUrlInput(e.target.value);
+                      if (e.target.value) setModelFile(null);
+                    }}
+                    placeholder="Link p3d.in (contoh: https://p3d.in/e/xxxx)"
+                    className="bg-navy border-cyan-500/15 text-foreground placeholder:text-slate-600 focus:border-cyan-500/40"
+                    disabled={!!modelFile}
+                  />
+                  {!modelUrlInput && (
+                    <div className="flex items-center justify-center my-2 text-xs text-slate-500">
+                      <span className="bg-slate-700 h-[1px] flex-1 opacity-20"></span>
+                      <span className="px-2">ATAU</span>
+                      <span className="bg-slate-700 h-[1px] flex-1 opacity-20"></span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {!modelUrlInput && (
+                <>
+                  <input
+                    ref={modelInputRef}
+                    type="file"
+                    accept=".glb,.gltf"
+                    className="hidden"
+                    onChange={handleModelSelect}
+                  />
+                  <AnimatePresence mode="wait">
+                    {modelFile ? (
+                      <motion.div
+                        key="model-preview"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className="flex items-center gap-3 p-3 rounded-xl border border-sky-500/15 bg-navy"
+                      >
+                        <div className="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center flex-shrink-0">
+                          <Box className="w-5 h-5 text-cyan-400" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-foreground truncate">{modelFile.name}</p>
+                          <p className="text-xs text-slate-500">{(modelFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="w-7 h-7 rounded-full text-slate-400 hover:text-red-400"
+                          onClick={() => {
+                            setModelFile(null);
+                            if (modelInputRef.current) modelInputRef.current.value = '';
+                          }}
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </Button>
+                      </motion.div>
+                    ) : (
+                      <motion.button
+                        key="model-upload"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => modelInputRef.current?.click()}
+                        className="w-full h-24 rounded-xl border-2 border-dashed border-cyan-500/20 hover:border-cyan-500/40 flex flex-col items-center justify-center gap-2 transition-colors duration-300 group cursor-pointer"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center group-hover:bg-cyan-500/20 transition-colors">
+                          <Box className="w-5 h-5 text-cyan-400/60 group-hover:text-cyan-400 transition-colors" />
+                        </div>
+                        <span className="text-xs text-slate-500 group-hover:text-slate-400 transition-colors">
+                          Upload model 3D (.glb, .gltf)
+                        </span>
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
+                </>
+              )}
+            </div>
+
+            {/* YouTube Video URL */}
+            <div className="space-y-2 border-t border-sky-500/10 pt-4">
+              <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                <Youtube className="w-4 h-4 text-red-400" /> Tautan AnatoPlay (YouTube)
+              </label>
+              <Textarea
+                value={youtubeUrlInput}
+                onChange={(e) => setYoutubeUrlInput(e.target.value)}
+                placeholder="https://youtu.be/xxx, https://youtu.be/yyy (Pisahkan dengan koma atau Enter untuk multiple video)"
+                className="bg-navy border-sky-500/15 text-foreground placeholder:text-slate-600 focus:border-sky-500/40 min-h-[80px]"
+              />
+            </div>
+
+            {/* Document Upload */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-emerald-400" /> File Materi (PDF, Opsional)
               </label>
               <input
-                ref={modelInputRef}
+                ref={documentInputRef}
                 type="file"
-                accept=".glb,.gltf"
+                accept=".pdf,.doc,.docx,.ppt,.pptx"
                 className="hidden"
-                onChange={handleModelSelect}
+                onChange={handleDocumentSelect}
               />
               <AnimatePresence mode="wait">
-                {modelFile ? (
+                {documentFile ? (
                   <motion.div
-                    key="model-preview"
+                    key="document-preview"
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-sky-500/15 bg-navy"
+                    className="flex items-center gap-3 p-3 rounded-xl border border-emerald-500/15 bg-navy"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center flex-shrink-0">
-                      <Box className="w-5 h-5 text-cyan-400" />
+                    <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                      <FileText className="w-5 h-5 text-emerald-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground truncate">{modelFile.name}</p>
-                      <p className="text-xs text-slate-500">{(modelFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+                      <p className="text-sm text-foreground truncate">{documentFile.name}</p>
+                      <p className="text-xs text-slate-500">{(documentFile.size / (1024 * 1024)).toFixed(2)} MB</p>
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
                       className="w-7 h-7 rounded-full text-slate-400 hover:text-red-400"
                       onClick={() => {
-                        setModelFile(null);
-                        if (modelInputRef.current) modelInputRef.current.value = '';
+                        setDocumentFile(null);
+                        if (documentInputRef.current) documentInputRef.current.value = '';
                       }}
                     >
                       <X className="w-3.5 h-3.5" />
@@ -320,18 +498,18 @@ export function UploadDialog({ open, onOpenChange, onSuccess }: UploadDialogProp
                   </motion.div>
                 ) : (
                   <motion.button
-                    key="model-upload"
+                    key="document-upload"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    onClick={() => modelInputRef.current?.click()}
-                    className="w-full h-24 rounded-xl border-2 border-dashed border-cyan-500/20 hover:border-cyan-500/40 flex flex-col items-center justify-center gap-2 transition-colors duration-300 group cursor-pointer"
+                    onClick={() => documentInputRef.current?.click()}
+                    className="w-full h-16 rounded-xl border-2 border-dashed border-emerald-500/20 hover:border-emerald-500/40 flex items-center justify-center gap-3 transition-colors duration-300 group cursor-pointer"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center group-hover:bg-cyan-500/20 transition-colors">
-                      <Box className="w-5 h-5 text-cyan-400/60 group-hover:text-cyan-400 transition-colors" />
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
+                      <FileUp className="w-4 h-4 text-emerald-400/60 group-hover:text-emerald-400 transition-colors" />
                     </div>
                     <span className="text-xs text-slate-500 group-hover:text-slate-400 transition-colors">
-                      Upload model 3D (.glb, .gltf)
+                      Upload File Materi
                     </span>
                   </motion.button>
                 )}
@@ -361,7 +539,7 @@ export function UploadDialog({ open, onOpenChange, onSuccess }: UploadDialogProp
               ) : (
                 <>
                   <Upload className="w-4 h-4 mr-2" />
-                  Tambah Preparat
+                  {isEditing ? 'Simpan Perubahan' : 'Tambah Preparat'}
                 </>
               )}
             </Button>

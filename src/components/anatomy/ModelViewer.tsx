@@ -7,23 +7,32 @@ import { motion } from 'framer-motion';
 import { Maximize2, Minimize2, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import * as THREE from 'three';
+import { MarkerPin3D } from './markers/MarkerPin3D';
+import { Marker } from './markers/MarkerOverlay';
 
 interface ModelLoaderInnerProps {
   url: string;
+  isPlacementMode?: boolean;
+  onPlaceMarker?: (x: number, y: number, z: number) => void;
+  markers?: Marker[];
+  activeMarkerId?: string | null;
+  onMarkerClick?: (id: string) => void;
 }
 
-function ModelLoaderInner({ url }: ModelLoaderInnerProps) {
+function ModelLoaderInner({ 
+  url, 
+  isPlacementMode, 
+  onPlaceMarker, 
+  markers = [], 
+  activeMarkerId,
+  onMarkerClick 
+}: ModelLoaderInnerProps) {
   const group = useRef<THREE.Group>(null);
   const [error, setError] = useState(false);
+  
   const { scene } = useGLTF(url, true, undefined, (err) => {
     console.error('GLTF load error:', err);
     setError(true);
-  });
-
-  useFrame(() => {
-    if (group.current) {
-      // subtle idle animation
-    }
   });
 
   useEffect(() => {
@@ -46,11 +55,38 @@ function ModelLoaderInner({ url }: ModelLoaderInnerProps) {
     );
   }
 
-  return <primitive ref={group} object={scene} />;
+  return (
+    <group ref={group}>
+      <primitive 
+        object={scene} 
+        onPointerDown={(e: any) => {
+          if (isPlacementMode && onPlaceMarker) {
+            e.stopPropagation();
+            onPlaceMarker(e.point.x, e.point.y, e.point.z);
+          }
+        }}
+      />
+      {markers.map((marker) => (
+        <MarkerPin3D
+          key={marker.id}
+          position={[marker.positionX, marker.positionY, marker.positionZ]}
+          color={marker.color}
+          label={marker.label}
+          isActive={activeMarkerId === marker.id}
+          onClick={() => onMarkerClick?.(marker.id)}
+        />
+      ))}
+    </group>
+  );
 }
 
 interface ModelViewerProps {
   url: string;
+  isPlacementMode?: boolean;
+  onPlaceMarker?: (x: number, y: number, z: number) => void;
+  markers?: Marker[];
+  activeMarkerId?: string | null;
+  onMarkerClick?: (id: string) => void;
 }
 
 function LoadingFallback() {
@@ -68,7 +104,14 @@ function LoadingFallback() {
   );
 }
 
-export function ModelViewer({ url }: ModelViewerProps) {
+export function ModelViewer({ 
+  url, 
+  isPlacementMode, 
+  onPlaceMarker, 
+  markers, 
+  activeMarkerId,
+  onMarkerClick 
+}: ModelViewerProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -80,7 +123,7 @@ export function ModelViewer({ url }: ModelViewerProps) {
       <Canvas
         camera={{ position: [0, 2, 5], fov: 45 }}
         gl={{ antialias: true, alpha: true }}
-        className="!bg-transparent"
+        className={`!bg-transparent ${isPlacementMode ? 'cursor-crosshair' : ''}`}
       >
         <color attach="background" args={['#040b18']} />
         <fog attach="fog" args={['#040b18', 8, 30]} />
@@ -98,7 +141,14 @@ export function ModelViewer({ url }: ModelViewerProps) {
             </mesh>
           }
         >
-          <ModelLoaderInner url={url} />
+          <ModelLoaderInner 
+            url={url} 
+            isPlacementMode={isPlacementMode}
+            onPlaceMarker={onPlaceMarker}
+            markers={markers}
+            activeMarkerId={activeMarkerId}
+            onMarkerClick={onMarkerClick}
+          />
         </Suspense>
 
         <ContactShadows
@@ -115,7 +165,7 @@ export function ModelViewer({ url }: ModelViewerProps) {
           enablePan={true}
           enableZoom={true}
           enableRotate={true}
-          autoRotate
+          autoRotate={!isPlacementMode && !activeMarkerId} // Stop rotation when placing or selecting
           autoRotateSpeed={0.5}
           maxPolarAngle={Math.PI}
           minDistance={1}
@@ -137,16 +187,20 @@ export function ModelViewer({ url }: ModelViewerProps) {
 
       {/* Hint */}
       <div className="absolute bottom-4 left-4 text-[11px] text-slate-500">
-        Drag untuk rotasi • Scroll untuk zoom
+        {isPlacementMode ? (
+          <span className="text-sky-400 font-medium bg-navy/80 px-2 py-1 rounded">Klik pada model untuk menambahkan penanda</span>
+        ) : (
+          'Drag untuk rotasi • Scroll untuk zoom'
+        )}
       </div>
     </div>
   );
 }
 
-export function ModelViewerWrapper({ url }: ModelViewerProps) {
+export function ModelViewerWrapper(props: ModelViewerProps) {
   return (
     <Suspense fallback={<LoadingFallback />}>
-      <ModelViewer url={url} />
+      <ModelViewer {...props} />
     </Suspense>
   );
 }

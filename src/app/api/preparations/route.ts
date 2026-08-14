@@ -18,7 +18,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, description, category, imageUrl, modelUrl, thumbnailUrl } = body;
+    const { title, description, category, imageUrl, modelUrl, thumbnailUrl, youtubeUrl, documentUrl } = body;
 
     if (!title) {
       return NextResponse.json(
@@ -35,11 +35,14 @@ export async function POST(request: Request) {
         imageUrl: imageUrl || null,
         modelUrl: modelUrl || null,
         thumbnailUrl: thumbnailUrl || null,
+        youtubeUrl: youtubeUrl || null,
+        documentUrl: documentUrl || null,
       },
     });
 
     return NextResponse.json(preparation, { status: 201 });
-  } catch {
+  } catch (error) {
+    console.error("Error creating preparation:", error);
     return NextResponse.json(
       { error: "Failed to create preparation" },
       { status: 500 }
