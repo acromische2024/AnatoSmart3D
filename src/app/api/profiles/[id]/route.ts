@@ -14,7 +14,7 @@ export async function PUT(
     return NextResponse.json(profile);
   } catch (error) {
     console.error('Failed to update profile:', error);
-    return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to update profile' }, { status: 500 });
   }
 }
 
@@ -29,6 +29,6 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Failed to delete profile:', error);
-    return NextResponse.json({ error: 'Failed to delete profile' }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to delete profile' }, { status: 500 });
   }
 }

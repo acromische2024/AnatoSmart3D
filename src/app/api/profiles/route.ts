@@ -9,7 +9,7 @@ export async function GET() {
     return NextResponse.json(profiles);
   } catch (error) {
     console.error('Failed to fetch profiles:', error);
-    return NextResponse.json({ error: 'Failed to fetch profiles' }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to fetch profiles' }, { status: 500 });
   }
 }
 
@@ -22,6 +22,6 @@ export async function POST(req: Request) {
     return NextResponse.json(profile);
   } catch (error) {
     console.error('Failed to create profile:', error);
-    return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to create profile' }, { status: 500 });
   }
 }

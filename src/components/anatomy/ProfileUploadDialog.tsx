@@ -110,8 +110,9 @@ export function ProfileUploadDialog({
         finalImageUrl = await uploadFile(imageFile);
       }
 
-      // Format slug automatically
-      const slug = formData.slug || formData.name!.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      // Format slug automatically and make it unique if creating new
+      const baseSlug = formData.name!.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const slug = formData.slug || `${baseSlug}-${uuidv4().substring(0, 6)}`;
 
       const payload = {
         ...formData,
@@ -130,14 +131,17 @@ export function ProfileUploadDialog({
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error('Gagal menyimpan');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(errorData?.error || 'Gagal menyimpan');
+      }
 
       toast.success('Profil berhasil disimpan');
       onSuccess();
       onOpenChange(false);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error('Terjadi kesalahan saat menyimpan profil');
+      toast.error(err.message || 'Terjadi kesalahan saat menyimpan profil');
     } finally {
       setLoading(false);
     }
