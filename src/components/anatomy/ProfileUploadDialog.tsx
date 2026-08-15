@@ -86,7 +86,7 @@ export function ProfileUploadDialog({
 
   const uploadFile = async (file: File) => {
     const fileExt = file.name.split('.').pop();
-    const filePath = `profiles/${uuidv4()}.${fileExt}`;
+    const filePath = `images/profiles_${uuidv4()}.${fileExt}`;
     const { error: uploadError } = await getSupabase().storage
       .from('anatomy-assets')
       .upload(filePath, file);
@@ -141,7 +141,8 @@ export function ProfileUploadDialog({
       onOpenChange(false);
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || 'Terjadi kesalahan saat menyimpan profil');
+      const msg = err?.message || err?.error_description || err?.toString() || 'Terjadi kesalahan sistem';
+      toast.error(msg === '[object Object]' ? 'Terjadi kesalahan sistem' : msg);
     } finally {
       setLoading(false);
     }
