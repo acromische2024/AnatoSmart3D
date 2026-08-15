@@ -13,11 +13,7 @@ import {
   Box, 
   Video, 
   ChevronLeft, 
-  ArrowLeft,
-  Target,
-  Sparkles,
-  MapPin,
-  Eye
+  ArrowLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
@@ -103,80 +99,6 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
     }
     fetchData();
   }, [resolvedParams.id]);
-
-  // Combine DB markers, numbered description points, or fallback 3D hotspots
-  const hotspotsList = useMemo(() => {
-    if (currentPrep?.markers && currentPrep.markers.length > 0) {
-      return currentPrep.markers.map((m, i) => ({
-        index: i,
-        label: m.label,
-        description: m.description || null,
-      }));
-    }
-
-    if (currentPrep?.description) {
-      const lines = currentPrep.description.split('\n');
-      const items: { index: number; label: string; description: string | null }[] = [];
-      let itemIdx = 0;
-      
-      lines.forEach((line) => {
-        const match = line.match(/^(\d+)[\.\)]\s*(.+)/);
-        if (match) {
-          const fullContent = match[2].trim();
-          const parts = fullContent.split(/[-–:]/);
-          const label = parts[0].trim();
-          const desc = parts.slice(1).join('-').trim() || null;
-          items.push({
-            index: itemIdx,
-            label,
-            description: desc,
-          });
-          itemIdx++;
-        }
-      });
-      if (items.length > 0) return items;
-    }
-
-    // Default fallback for 3D models (e.g. p3d.in annotations) so the POV button bar is always displayed
-    if (currentPrep?.modelUrl) {
-      return Array.from({ length: 10 }, (_, i) => ({
-        index: i,
-        label: `Tag / Hotspot ${i + 1}`,
-        description: `Klik untuk memindahkan kamera 3D POV ke titik bagian #${i + 1}`,
-      }));
-    }
-
-    return [];
-  }, [currentPrep?.markers, currentPrep?.description, currentPrep?.modelUrl]);
-
-  // Handle hotspot selection & camera POV shift in p3d.in viewer via postMessage
-  const handleSelectHotspot = (index: number) => {
-    setActiveHotspotIndex(index);
-    
-    if (!iframeRef.current || !iframeRef.current.contentWindow) return;
-    const cw = iframeRef.current.contentWindow;
-
-    // Send p3d.in API commands
-    const commands = [
-      { action: 'selectAnnotation', index },
-      { action: 'selectAnnotation', index: index + 1 },
-      { action: 'activateAnnotation', index },
-      { action: 'activateAnnotation', index: index + 1 },
-      { action: 'gotoAnnotation', index },
-      { action: 'gotoAnnotation', index: index + 1 },
-      { action: 'setAnnotation', index },
-      { action: 'setAnnotation', index: index + 1 },
-      { type: 'selectAnnotation', index },
-      { type: 'selectAnnotation', index: index + 1 },
-    ];
-
-    commands.forEach((msg) => {
-      try {
-        cw.postMessage(msg, '*');
-        cw.postMessage(JSON.stringify(msg), '*');
-      } catch {}
-    });
-  };
 
   // Render 3D iframe securely
   const getIframeUrl = (url: string) => {
@@ -324,62 +246,7 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
               )}
             </div>
 
-            {/* 3D Hotspot / POV Selector Bar */}
-            {hotspotsList.length > 0 && (
-              <div className="mb-8 p-5 bg-gradient-to-r from-sky-950/40 via-slate-900/60 to-purple-950/40 border border-sky-500/20 rounded-2xl shadow-xl">
-                <div className="flex items-center gap-2 mb-3">
-                  <Target className="w-4 h-4 text-sky-400 animate-pulse" />
-                  <h3 className="text-sm font-bold text-sky-200 tracking-wide uppercase">Fokus Kamera POV / Tag Hotspot 3D</h3>
-                  <span className="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full font-mono">
-                    {hotspotsList.length} Tag
-                  </span>
-                </div>
-                <p className="text-xs text-slate-400 mb-4">
-                  Klik tag nama bagian di bawah ini untuk memindahkan sudut pandang kamera 3D (POV) secara otomatis ke lokasi tersebut.
-                </p>
 
-                {/* Horizontal tag chips list */}
-                <div className="flex flex-wrap gap-2.5">
-                  {hotspotsList.map((spot) => {
-                    const isSelected = activeHotspotIndex === spot.index;
-                    return (
-                      <button
-                        key={spot.index}
-                        onClick={() => handleSelectHotspot(spot.index)}
-                        className={cn(
-                          "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 flex items-center gap-2 border cursor-pointer",
-                          isSelected
-                            ? "bg-sky-500 text-black border-sky-300 shadow-[0_0_15px_rgba(14,165,233,0.5)] scale-105"
-                            : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10 hover:border-sky-500/40 hover:text-white"
-                        )}
-                      >
-                        <MapPin className={cn("w-3.5 h-3.5", isSelected ? "text-black" : "text-sky-400")} />
-                        <span>{spot.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Active Hotspot Info Card */}
-                {activeHotspot && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-4 p-4 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-start gap-3"
-                  >
-                    <Eye className="w-5 h-5 text-sky-400 shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="font-bold text-sm text-sky-200">Bagian Terfokus: {activeHotspot.label}</h4>
-                      {activeHotspot.description ? (
-                        <p className="text-xs text-slate-300 mt-1 leading-relaxed">{activeHotspot.description}</p>
-                      ) : (
-                        <p className="text-xs text-slate-400 italic mt-1">Kamera POV diarahkan ke titik {activeHotspot.label}</p>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </div>
-            )}
 
             {/* Tabs Materi | Video */}
             <Tabs defaultValue="materi" className="w-full">
