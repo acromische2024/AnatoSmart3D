@@ -38,6 +38,7 @@ type Preparation = {
   imageUrl: string | null;
   thumbnailUrl: string | null;
   youtubeUrl: string | null;
+  documentUrl: string | null;
 };
 
 export default function SystemDetailPage() {
@@ -334,12 +335,6 @@ export default function SystemDetailPage() {
 
   // Komponen Materi
   const MateriContent = () => {
-    const catDocUrls = category.documentUrl
-      ? category.documentUrl.split(/[,]+/).map(u => u.trim()).filter(u => u !== '')
-      : [];
-    const prepDocs = preparations.filter(p => p.youtubeUrl === null && p.description); // placeholder
-    const prepWithDocs = preparations.filter(p => (p as any).documentUrl);
-
     const getFileName = (url: string) => {
       const parts = url.split('/').pop() || 'Dokumen';
       const underscoreIndex = parts.indexOf('_');
@@ -349,7 +344,35 @@ export default function SystemDetailPage() {
       return decodeURIComponent(parts);
     };
 
-    if (catDocUrls.length === 0) {
+    // Collect all docs: category-level + preparat-level, deduplicated
+    const allDocs: { url: string; label: string; source: 'category' | 'preparat' }[] = [];
+    const seenUrls = new Set<string>();
+
+    // Category-level docs
+    if (category.documentUrl) {
+      const catUrls = category.documentUrl.split(/[,]+/).map(u => u.trim()).filter(u => u !== '');
+      catUrls.forEach(url => {
+        if (!seenUrls.has(url)) {
+          seenUrls.add(url);
+          allDocs.push({ url, label: getFileName(url), source: 'category' });
+        }
+      });
+    }
+
+    // Preparat-level docs
+    preparations.forEach(prep => {
+      if (prep.documentUrl) {
+        const prepUrls = prep.documentUrl.split(/[,]+/).map(u => u.trim()).filter(u => u !== '');
+        prepUrls.forEach(url => {
+          if (!seenUrls.has(url)) {
+            seenUrls.add(url);
+            allDocs.push({ url, label: `${prep.title}`, source: 'preparat' });
+          }
+        });
+      }
+    });
+
+    if (allDocs.length === 0) {
       return (
         <div className="bg-slate-900/40 border border-white/10 rounded-2xl p-5 sm:p-8">
           <div className="flex items-start gap-4">
@@ -384,22 +407,24 @@ export default function SystemDetailPage() {
         )}
         {/* Document cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {catDocUrls.map((url, i) => {
-            const fileName = getFileName(url);
+          {allDocs.map((doc, i) => {
+            const isCat = doc.source === 'category';
             return (
-              <div key={i} className="bg-[#111118] border border-emerald-500/10 rounded-2xl p-4 flex items-center justify-between hover:border-emerald-500/30 hover:bg-emerald-500/[0.03] transition-all duration-200">
+              <div key={i} className={`bg-[#111118] border rounded-2xl p-4 flex items-center justify-between hover:bg-white/[0.02] transition-all duration-200 ${isCat ? 'border-emerald-500/10 hover:border-emerald-500/30' : 'border-sky-500/10 hover:border-sky-500/30'}`}>
                 <div className="flex items-center gap-3 overflow-hidden">
-                  <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-emerald-400" />
+                  <div className={`w-10 h-10 shrink-0 rounded-lg flex items-center justify-center ${isCat ? 'bg-emerald-500/10' : 'bg-sky-500/10'}`}>
+                    <FileText className={`w-5 h-5 ${isCat ? 'text-emerald-400' : 'text-sky-400'}`} />
                   </div>
                   <div className="min-w-0">
-                    <h4 className="font-semibold text-sm text-white truncate">{fileName}</h4>
-                    <p className="text-xs text-emerald-400/60">Dokumen Materi</p>
+                    <h4 className="font-semibold text-sm text-white truncate">{isCat ? doc.label : doc.label}</h4>
+                    <p className={`text-xs truncate ${isCat ? 'text-emerald-400/60' : 'text-sky-400/60'}`}>
+                      {isCat ? 'Materi Kategori' : `Materi Preparat`}
+                    </p>
                   </div>
                 </div>
                 <button 
-                  className="text-xs font-medium px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 shrink-0 ml-2 transition-colors"
-                  onClick={() => window.open(url, '_blank')}
+                  className={`text-xs font-medium px-3 py-1.5 rounded-lg shrink-0 ml-2 transition-colors ${isCat ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400' : 'bg-sky-500/10 hover:bg-sky-500/20 text-sky-400'}`}
+                  onClick={() => window.open(doc.url, '_blank')}
                 >
                   Buka
                 </button>
