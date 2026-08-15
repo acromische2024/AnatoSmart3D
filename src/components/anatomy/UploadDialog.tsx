@@ -30,7 +30,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabaseClient';
+import { getSupabase } from '@/lib/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
 
 type Preparation = {
@@ -152,6 +152,7 @@ export function UploadDialog({ open, onOpenChange, onSuccess, initialData, categ
         const fileName = `${uuidv4()}.${fileExt}`;
         const filePath = `images/${fileName}`;
         
+        const supabase = getSupabase();
         const { error: uploadError } = await supabase.storage
           .from('anatomy-assets')
           .upload(filePath, imageFile);
@@ -171,6 +172,7 @@ export function UploadDialog({ open, onOpenChange, onSuccess, initialData, categ
         const fileName = `${uuidv4()}.${fileExt}`;
         const filePath = `models/${fileName}`;
         
+        const supabase = getSupabase();
         const { error: uploadError } = await supabase.storage
           .from('anatomy-assets')
           .upload(filePath, modelFile);
@@ -192,6 +194,7 @@ export function UploadDialog({ open, onOpenChange, onSuccess, initialData, categ
         const fileName = `${uuidv4()}.${fileExt}`;
         const filePath = `documents/${fileName}`;
         
+        const supabase = getSupabase();
         const { error: uploadError } = await supabase.storage
           .from('anatomy-assets')
           .upload(filePath, documentFile);

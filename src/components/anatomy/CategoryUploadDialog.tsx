@@ -20,7 +20,7 @@ import {
   FileUp,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabaseClient';
+import { getSupabase } from '@/lib/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
 
 type SystemCategory = {
@@ -117,6 +117,7 @@ export function CategoryUploadDialog({ open, onOpenChange, onSuccess, initialDat
         const fileName = `${uuidv4()}.${fileExt}`;
         const filePath = `images/${fileName}`;
         
+        const supabase = getSupabase();
         const { error: uploadError } = await supabase.storage
           .from('anatomy-assets')
           .upload(filePath, imageFile);
