@@ -32,6 +32,7 @@ type Preparation = {
   imageUrl: string | null;
   thumbnailUrl: string | null;
   youtubeUrl: string | null;
+  documentUrl: string | null;
 };
 
 type SystemCategory = {
@@ -340,11 +341,13 @@ function KanbanBoard() {
               <BrainCircuit className="w-5 h-5 text-purple-400" />
             ) : mode === 'preparat_only' ? (
               <Microscope className="w-5 h-5 text-sky-400" />
+            ) : mode === 'materi' ? (
+              <FileText className="w-5 h-5 text-emerald-400" />
             ) : (
               <img src="/logo.png" alt="Logo" className="w-5 h-5 object-contain" />
             )}
             <span className="font-bold tracking-tight text-base sm:text-lg">
-              {mode === 'video' ? 'AnatoPlay' : mode === 'kuis' ? 'AnatoQuiz' : mode === 'preparat_only' ? 'Preparat 3D' : 'Semua Koleksi'}
+              {mode === 'video' ? 'AnatoPlay' : mode === 'kuis' ? 'AnatoQuiz' : mode === 'preparat_only' ? 'Preparat 3D' : mode === 'materi' ? 'Materi Pendukung' : 'Semua Koleksi'}
             </span>
           </div>
           <div className="ml-auto flex items-center gap-2 text-xs text-slate-500">
@@ -537,6 +540,61 @@ function KanbanBoard() {
                       ))}
                     </div>
                   )}
+                </section>
+                )}
+
+                {/* SECTION: Materi (Dokumen) */}
+                {(!mode || mode === 'materi') && (
+                <section>
+                  {!mode && (
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                        <FileText className="w-4 h-4 text-emerald-400" />
+                      </div>
+                      <h2 className="font-bold text-lg">Materi Pendukung</h2>
+                    </div>
+                  </div>
+                  )}
+
+                  {(() => {
+                    const docs = getPrepsForCategory(currentCat.name).filter(p => p.documentUrl);
+                    
+                    if (docs.length === 0) return (
+                      <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-8 text-center">
+                        <FileText className="w-10 h-10 text-slate-700 mx-auto mb-3" />
+                        <p className="text-sm text-slate-500">Belum ada dokumen materi untuk sistem ini.</p>
+                      </div>
+                    );
+
+                    return (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                        {docs.map((doc, i) => {
+                          const fileName = doc.documentUrl?.split('/').pop()?.split('_').slice(1).join('_') || 'Dokumen';
+                          return (
+                            <div key={i} className="bg-[#111118] border border-white/5 rounded-2xl p-5 flex items-center justify-between hover:border-emerald-500/30 transition-colors">
+                               <div className="flex items-center gap-3 overflow-hidden">
+                                 <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                                    <FileText className="w-5 h-5 text-emerald-400" />
+                                 </div>
+                                 <div className="min-w-0">
+                                    <h4 className="font-semibold text-sm text-white truncate">{doc.title}</h4>
+                                    <p className="text-xs text-slate-500 truncate">{fileName}</p>
+                                 </div>
+                               </div>
+                               <Button 
+                                 size="sm" 
+                                 className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 shrink-0 ml-2"
+                                 onClick={() => window.open(doc.documentUrl || '', '_blank')}
+                               >
+                                 Buka
+                               </Button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
                 </section>
                 )}
 

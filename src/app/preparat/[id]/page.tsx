@@ -248,11 +248,22 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
                     {currentPrep.documentUrl && (
                       <div className="space-y-4">
                         <div className="w-full h-[600px] bg-white/5 rounded-2xl overflow-hidden border border-white/10">
-                          <iframe 
-                            src={`https://docs.google.com/viewer?url=${encodeURIComponent(currentPrep.documentUrl)}&embedded=true`}
-                            className="w-full h-full border-none"
-                            title="Document Viewer"
-                          />
+                          {(() => {
+                            const url = currentPrep.documentUrl || '';
+                            const isPdf = url.toLowerCase().includes('.pdf');
+                            // Jika bukan PDF (misal PPTX/DOCX), kita gunakan Office Viewer yang lebih handal dari Google Docs untuk file besar
+                            const iframeSrc = isPdf 
+                              ? url 
+                              : `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+                            
+                            return (
+                              <iframe 
+                                src={iframeSrc}
+                                className="w-full h-full border-none bg-white"
+                                title="Document Viewer"
+                              />
+                            );
+                          })()}
                         </div>
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-6 bg-sky-500/10 border border-sky-500/20 rounded-2xl">
                           <div className="flex items-center gap-4 mb-4 sm:mb-0">
