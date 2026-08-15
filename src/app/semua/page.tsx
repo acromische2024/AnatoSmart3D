@@ -207,6 +207,8 @@ function KanbanBoard() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [extraVideoTitles, setExtraVideoTitles] = useState<Record<string, string>>({});
++  // State to store fetched YouTube titles for preparation videos
++  const [prepVideoTitles, setPrepVideoTitles] = useState<Record<string, string>>({});
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -259,6 +261,29 @@ function KanbanBoard() {
   }, []);
 
   const currentCat = categories.find(c => c.id === activeCategory);
+
+  useEffect(() => {
+    if (!currentCat) return;
+    const { preparationVideos } = getVideosForCategory(currentCat.name, currentCat.youtubeUrl, currentCat.extraVideoUrl);
+    const urls = preparationVideos.map(v => v.originalUrl).filter(Boolean);
+    if (urls.length === 0) return;
+    const titlesMap: Record<string, string> = {};
+    Promise.all(
+      urls.map(async (url) => {
+        try {
+          const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?\n]+)/);
+          const videoId = match ? match[1] : null;
+          if (videoId) {
+            const res = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data.title) titlesMap[videoId] = data.title;
+            }
+          }
+        } catch (e) {}
+      })
+    ).then(() => setPrepVideoTitles(titlesMap));
+  }, [currentCat]);
   
   const filteredCategories = categories.filter(cat => 
     cat.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -323,7 +348,6 @@ function KanbanBoard() {
     <div className="min-h-screen flex flex-col bg-[#050511] text-white font-sans overflow-hidden">
       <BackgroundOrbs />
 
-      {/* Navbar */}
       <header className="relative z-50 px-4 sm:px-6 lg:px-8 h-16 flex items-center border-b border-white/5 bg-[#050511]/80 backdrop-blur-xl">
         <nav className="flex items-center gap-3 w-full max-w-[1800px] mx-auto">
           <Button
@@ -357,14 +381,8 @@ function KanbanBoard() {
         </nav>
       </header>
 
-      {/* 
-        LAYOUT MASTER-DETAIL 
-        Mobile: Stack (sidebar di atas, konten di bawah)
-        Desktop: Sidebar kiri (280px) + Konten kanan (flex-1)
-      */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden max-w-[1800px] mx-auto w-full">
         
-        {/* MOBILE CATEGORY TOGGLE (Visible only on < lg) */}
         <div className="lg:hidden p-4 border-b border-white/5 bg-[#050511] z-40 shrink-0">
           <button
             onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
@@ -383,9 +401,7 @@ function KanbanBoard() {
           </button>
         </div>
 
-        {/* SIDEBAR KIRI — Daftar Kategori */}
         <aside className={`w-full lg:w-80 xl:w-96 bg-[#08081a]/80 border-b lg:border-b-0 lg:border-r border-white/5 flex-col shrink-0 ${mobileSidebarOpen ? 'flex max-h-[50vh] lg:max-h-none' : 'hidden lg:flex'}`}>
-          {/* Search */}
           <div className="p-4 border-b border-white/5">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
@@ -399,7 +415,6 @@ function KanbanBoard() {
             </div>
           </div>
 
-          {/* Category List */}
           <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
             {filteredCategories.map((cat) => {
               const isActive = cat.id === activeCategory;
@@ -420,7 +435,6 @@ function KanbanBoard() {
                       : 'hover:bg-white/5 border border-transparent'
                     }`}
                 >
-                  {/* Icon / Image */}
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 overflow-hidden
                     ${isActive ? 'bg-sky-500/20 ring-2 ring-sky-500/30' : 'bg-white/5'}`}>
                     {cat.imageUrl ? (
@@ -430,7 +444,6 @@ function KanbanBoard() {
                     )}
                   </div>
                   
-                  {/* Info */}
                   <div className="flex-1 min-w-0">
                     <h4 className={`font-semibold text-sm truncate ${isActive ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>
                       {cat.name}
@@ -445,7 +458,6 @@ function KanbanBoard() {
                     </div>
                   </div>
 
-                  {/* Active indicator */}
                   {isActive && (
                     <motion.div 
                       layoutId="activeIndicator"
@@ -458,7 +470,6 @@ function KanbanBoard() {
           </div>
         </aside>
 
-        {/* KONTEN KANAN — Detail Kategori Aktif */}
         <main className="flex-1 overflow-y-auto custom-scrollbar bg-[#050511]/50">
           <AnimatePresence mode="wait">
             {currentCat && (
@@ -470,7 +481,6 @@ function KanbanBoard() {
                 transition={{ duration: 0.3 }}
                 className="p-4 sm:p-6 lg:p-8 xl:p-10 space-y-6 lg:space-y-8"
               >
-                {/* Header Kategori */}
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">{currentCat.name}</h1>
@@ -486,7 +496,6 @@ function KanbanBoard() {
                   </div>
                 </div>
 
-                {/* SECTION: Preparat 3D */}
                 {(!mode || mode === 'preparat_only') && (
                 <section>
                   {!mode && (
@@ -543,7 +552,6 @@ function KanbanBoard() {
                 </section>
                 )}
 
-                {/* SECTION: Materi (Dokumen) */}
                 {(!mode || mode === 'materi') && (
                 <section>
                   {!mode && (
@@ -598,7 +606,6 @@ function KanbanBoard() {
                 </section>
                 )}
 
-                {/* SECTION: Video (AnatoPlay) */}
                 {(!mode || mode === 'video') && (
                 <section>
                   {!mode && (
@@ -625,7 +632,6 @@ function KanbanBoard() {
 
                     return (
                       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                        {/* Category Intro Video */}
                         {categoryVideo && (() => {
                           const match = categoryVideo.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?\n]+)/);
                           const videoId = match ? match[1] : null;
@@ -648,7 +654,6 @@ function KanbanBoard() {
                           );
                         })()}
 
-                        {/* Preparation Videos */}
                         {preparationVideos.map((prep, vi) => {
                           const match = prep.originalUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?\n]+)/);
                           const videoId = match ? match[1] : null;
@@ -660,13 +665,13 @@ function KanbanBoard() {
                             <div key={vi} className="bg-[#111118] border border-white/5 rounded-2xl overflow-hidden shadow-md">
                               <div className="aspect-video relative bg-slate-800">
                                 {videoId ? (
-                                  <iframe src={embedUrl} title={prep.titles[0]} className="absolute inset-0 w-full h-full border-0" allowFullScreen />
+                                  <iframe src={embedUrl} title={prepVideoTitles[videoId] ?? prep.titles[0]} className="absolute inset-0 w-full h-full border-0" allowFullScreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
                                 ) : (
                                   <div className="flex items-center justify-center w-full h-full"><PlayCircle className="w-10 h-10 text-slate-600"/></div>
                                 )}
                               </div>
                               <div className="p-4">
-                                <h4 className="font-semibold text-sm text-slate-200 line-clamp-2">{prep.titles.join(' & ')}</h4>
+                                <h4 className="font-semibold text-sm text-slate-200 line-clamp-2">{prepVideoTitles[videoId] ?? prep.titles[0]}</h4>
                               </div>
                             </div>
                           );

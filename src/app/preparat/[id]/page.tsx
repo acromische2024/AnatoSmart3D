@@ -26,6 +26,25 @@ type Preparation = {
 export default function PreparatPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const router = useRouter();
+  // State to hold fetched YouTube titles for each video URL
+  const [youtubeTitles, setYoutubeTitles] = React.useState<string[]>([]);
+
+  // Fetch titles when youtubeUrl changes
+  React.useEffect(() => {
+    if (!currentPrep?.youtubeUrl) {
+      setYoutubeTitles([]);
+      return;
+    }
+    const urls = currentPrep.youtubeUrl.split(/[\s,]+/).filter(u => u.trim() !== '');
+    Promise.all(
+      urls.map((url) =>
+        fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`)
+          .then((res) => res.json())
+          .then((data) => data.title || '')
+          .catch(() => '')
+      )
+    ).then((titles) => setYoutubeTitles(titles));
+  }, [currentPrep?.youtubeUrl]);
   
   const [currentPrep, setCurrentPrep] = useState<Preparation | null>(null);
   const [preparationsList, setPreparationsList] = useState<Preparation[]>([]);
@@ -310,7 +329,7 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
                                 ) : (
                                   <iframe
                                     src={getYoutubeEmbed(url)}
-                                    title={`AnatoPlay ${i + 1} for ${currentPrep.title}`}
+                                    title={youtubeTitles[i] ?? `Video ${i + 1}`}
                                     className="absolute inset-0 w-full h-full border-0"
                                     allowFullScreen
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
