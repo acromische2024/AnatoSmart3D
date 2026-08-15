@@ -156,22 +156,21 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
     if (!iframeRef.current || !iframeRef.current.contentWindow) return;
     const cw = iframeRef.current.contentWindow;
 
-    // Send postMessage API commands to p3d.in iframe (DO NOT reassign iframe.src to prevent iframe reload/reset)
-    const messages = [
+    // Send p3d.in API commands
+    const commands = [
       { action: 'selectAnnotation', index },
-      { action: 'activateAnnotation', index },
-      { action: 'gotoAnnotation', index },
-      { action: 'setAnnotation', index },
       { action: 'selectAnnotation', index: index + 1 },
+      { action: 'activateAnnotation', index },
       { action: 'activateAnnotation', index: index + 1 },
+      { action: 'gotoAnnotation', index },
       { action: 'gotoAnnotation', index: index + 1 },
+      { action: 'setAnnotation', index },
+      { action: 'setAnnotation', index: index + 1 },
       { type: 'selectAnnotation', index },
-      { type: 'activateAnnotation', index },
-      { method: 'selectAnnotation', value: index },
-      { method: 'activateAnnotation', value: index },
+      { type: 'selectAnnotation', index: index + 1 },
     ];
 
-    messages.forEach((msg) => {
+    commands.forEach((msg) => {
       try {
         cw.postMessage(msg, '*');
         cw.postMessage(JSON.stringify(msg), '*');
@@ -184,7 +183,7 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
     if (url.includes('p3d.in')) {
       const idMatch = url.match(/p3d\.in\/(?:e\/)?([a-zA-Z0-9]+)/);
       if (idMatch && idMatch[1]) {
-        return `https://p3d.in/e/${idMatch[1]}+controls-hidden,link-hidden?api=true&spin=true&transparent=true`;
+        return `https://p3d.in/e/${idMatch[1]}?api=true&controls-hidden=1&link-hidden=1&spin=1`;
       }
     }
     return url;
