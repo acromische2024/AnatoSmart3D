@@ -104,7 +104,7 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
     fetchData();
   }, [resolvedParams.id]);
 
-  // Combine DB markers & numbered points in description into interactive hotspots
+  // Combine DB markers, numbered description points, or fallback 3D hotspots
   const hotspotsList = useMemo(() => {
     if (currentPrep?.markers && currentPrep.markers.length > 0) {
       return currentPrep.markers.map((m, i) => ({
@@ -114,29 +114,40 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
       }));
     }
 
-    if (!currentPrep?.description) return [];
-    
-    const lines = currentPrep.description.split('\n');
-    const items: { index: number; label: string; description: string | null }[] = [];
-    let itemIdx = 0;
-    
-    lines.forEach((line) => {
-      const match = line.match(/^(\d+)[\.\)]\s*(.+)/);
-      if (match) {
-        const fullContent = match[2].trim();
-        const parts = fullContent.split(/[-–:]/);
-        const label = parts[0].trim();
-        const desc = parts.slice(1).join('-').trim() || null;
-        items.push({
-          index: itemIdx,
-          label,
-          description: desc,
-        });
-        itemIdx++;
-      }
-    });
-    return items;
-  }, [currentPrep?.markers, currentPrep?.description]);
+    if (currentPrep?.description) {
+      const lines = currentPrep.description.split('\n');
+      const items: { index: number; label: string; description: string | null }[] = [];
+      let itemIdx = 0;
+      
+      lines.forEach((line) => {
+        const match = line.match(/^(\d+)[\.\)]\s*(.+)/);
+        if (match) {
+          const fullContent = match[2].trim();
+          const parts = fullContent.split(/[-–:]/);
+          const label = parts[0].trim();
+          const desc = parts.slice(1).join('-').trim() || null;
+          items.push({
+            index: itemIdx,
+            label,
+            description: desc,
+          });
+          itemIdx++;
+        }
+      });
+      if (items.length > 0) return items;
+    }
+
+    // Default fallback for 3D models (e.g. p3d.in annotations) so the POV button bar is always displayed
+    if (currentPrep?.modelUrl) {
+      return Array.from({ length: 10 }, (_, i) => ({
+        index: i,
+        label: `Tag / Hotspot ${i + 1}`,
+        description: `Klik untuk memindahkan kamera 3D POV ke titik bagian #${i + 1}`,
+      }));
+    }
+
+    return [];
+  }, [currentPrep?.markers, currentPrep?.description, currentPrep?.modelUrl]);
 
   // Handle hotspot selection & camera POV shift in p3d.in viewer
   const handleSelectHotspot = (index: number) => {
