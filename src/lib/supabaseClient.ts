@@ -12,6 +12,11 @@ export const getSupabase = () => {
     throw new Error('Supabase URL atau Key belum terdeteksi oleh sistem. Pastikan nama kunci di Vercel sudah benar (NEXT_PUBLIC_SUPABASE_URL) lalu lakukan Redeploy.');
   }
 
-  supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
+  let finalUrl = supabaseUrl;
+  if (!finalUrl.startsWith('http')) {
+    finalUrl = 'https://ltyaaqkrxhvqknrrxzgm.supabase.co';
+  }
+
+  supabaseInstance = createClient(finalUrl, supabaseAnonKey);
   return supabaseInstance;
 };
