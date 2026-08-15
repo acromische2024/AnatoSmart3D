@@ -149,36 +149,34 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
     return [];
   }, [currentPrep?.markers, currentPrep?.description, currentPrep?.modelUrl]);
 
-  // Handle hotspot selection & camera POV shift in p3d.in viewer
+  // Handle hotspot selection & camera POV shift in p3d.in viewer via postMessage
   const handleSelectHotspot = (index: number) => {
     setActiveHotspotIndex(index);
     
-    if (!iframeRef.current) return;
-    const iframe = iframeRef.current;
+    if (!iframeRef.current || !iframeRef.current.contentWindow) return;
+    const cw = iframeRef.current.contentWindow;
 
-    // Send postMessage API commands to p3d.in iframe
-    if (iframe.contentWindow) {
-      const messages = [
-        { action: 'selectAnnotation', index },
-        { action: 'activateAnnotation', index },
-        { action: 'gotoAnnotation', index },
-        { type: 'selectAnnotation', index },
-        { type: 'activateAnnotation', index },
-        { action: 'setAnnotation', index: index + 1 },
-      ];
-      messages.forEach((msg) => {
-        try {
-          iframe.contentWindow?.postMessage(msg, '*');
-          iframe.contentWindow?.postMessage(JSON.stringify(msg), '*');
-        } catch {}
-      });
-    }
+    // Send postMessage API commands to p3d.in iframe (DO NOT reassign iframe.src to prevent iframe reload/reset)
+    const messages = [
+      { action: 'selectAnnotation', index },
+      { action: 'activateAnnotation', index },
+      { action: 'gotoAnnotation', index },
+      { action: 'setAnnotation', index },
+      { action: 'selectAnnotation', index: index + 1 },
+      { action: 'activateAnnotation', index: index + 1 },
+      { action: 'gotoAnnotation', index: index + 1 },
+      { type: 'selectAnnotation', index },
+      { type: 'activateAnnotation', index },
+      { method: 'selectAnnotation', value: index },
+      { method: 'activateAnnotation', value: index },
+    ];
 
-    // Fallback: update iframe src URL hash to trigger annotation change in p3d.in viewer
-    if (currentPrep?.modelUrl && currentPrep.modelUrl.includes('p3d.in')) {
-      const baseUrl = getIframeUrl(currentPrep.modelUrl).split('#')[0];
-      iframe.src = `${baseUrl}#annotation=${index + 1}`;
-    }
+    messages.forEach((msg) => {
+      try {
+        cw.postMessage(msg, '*');
+        cw.postMessage(JSON.stringify(msg), '*');
+      } catch {}
+    });
   };
 
   // Render 3D iframe securely
