@@ -65,7 +65,7 @@ export default function HomePage() {
     { label: 'AnatoPlay', href: '/semua?mode=video' },
     { label: 'AnatoQuiz', href: '/semua?mode=kuis' },
     { label: 'Materi', href: '#' },
-    { label: 'Tentang', href: '#' },
+    { label: 'Tentang', href: '/tentang' },
   ];
 
   const blurFocusVariants: Variants = {
