@@ -5,9 +5,10 @@ import { ChevronLeft, Mail, MapPin, Calendar, Heart, Quote, BookOpen, Graduation
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-export default async function ProfilePage({ params }: { params: { slug: string } }) {
+export default async function ProfilePage({ params }: { params: Promise<{ slug: string }> }) {
+  const resolvedParams = await params;
   const profile = await prisma.profile.findUnique({
-    where: { slug: params.slug },
+    where: { slug: resolvedParams.slug },
   });
 
   if (!profile) {
