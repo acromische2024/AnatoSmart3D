@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma';
+import { db as prisma } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { BackgroundOrbs } from '@/components/anatomy/BackgroundOrbs';
 import { ChevronLeft, Mail, MapPin, Calendar, Heart, Quote, BookOpen, GraduationCap, Building2, ExternalLink } from 'lucide-react';

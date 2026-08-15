@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabaseClient';
+import { getSupabase } from '@/lib/supabaseClient';
 import { Profile } from './ProfileManager';
 import { v4 as uuidv4 } from 'uuid';
 import { Loader2 } from 'lucide-react';
@@ -87,12 +87,12 @@ export function ProfileUploadDialog({
   const uploadFile = async (file: File) => {
     const fileExt = file.name.split('.').pop();
     const filePath = `profiles/${uuidv4()}.${fileExt}`;
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await getSupabase().storage
       .from('anatomy-assets')
       .upload(filePath, file);
 
     if (uploadError) throw uploadError;
-    const { data } = supabase.storage.from('anatomy-assets').getPublicUrl(filePath);
+    const { data } = getSupabase().storage.from('anatomy-assets').getPublicUrl(filePath);
     return data.publicUrl;
   };
 
