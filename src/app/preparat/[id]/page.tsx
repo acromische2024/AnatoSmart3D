@@ -244,25 +244,34 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
                       )}
                     </div>
 
-                    {/* Document Link */}
+                    {/* Document Viewer & Link */}
                     {currentPrep.documentUrl && (
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-6 bg-sky-500/10 border border-sky-500/20 rounded-2xl">
-                        <div className="flex items-center gap-4 mb-4 sm:mb-0">
-                          <div className="w-12 h-12 rounded-full bg-sky-500/20 flex items-center justify-center">
-                            <FileText className="w-6 h-6 text-sky-400" />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-lg text-sky-100">Dokumen Pendukung</h4>
-                            <p className="text-sm text-sky-400/80">PDF atau File Materi Tambahan</p>
-                          </div>
+                      <div className="space-y-4">
+                        <div className="w-full h-[600px] bg-white/5 rounded-2xl overflow-hidden border border-white/10">
+                          <iframe 
+                            src={`https://docs.google.com/viewer?url=${encodeURIComponent(currentPrep.documentUrl)}&embedded=true`}
+                            className="w-full h-full border-none"
+                            title="Document Viewer"
+                          />
                         </div>
-                        <Button
-                          className="bg-sky-500 hover:bg-sky-400 text-black font-semibold"
-                          onClick={() => window.open(currentPrep.documentUrl || '', '_blank')}
-                        >
-                          Buka Dokumen
-                          <ExternalLink className="w-4 h-4 ml-2" />
-                        </Button>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-6 bg-sky-500/10 border border-sky-500/20 rounded-2xl">
+                          <div className="flex items-center gap-4 mb-4 sm:mb-0">
+                            <div className="w-12 h-12 rounded-full bg-sky-500/20 flex items-center justify-center">
+                              <FileText className="w-6 h-6 text-sky-400" />
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-lg text-sky-100">Unduh Dokumen Pendukung</h4>
+                              <p className="text-sm text-sky-400/80">Simpan materi PDF/PPT/Word ke perangkatmu</p>
+                            </div>
+                          </div>
+                          <Button
+                            className="bg-sky-500 hover:bg-sky-400 text-black font-semibold"
+                            onClick={() => window.open(currentPrep.documentUrl || '', '_blank')}
+                          >
+                            Download Dokumen
+                            <ExternalLink className="w-4 h-4 ml-2" />
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </motion.div>

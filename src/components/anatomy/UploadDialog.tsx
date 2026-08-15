@@ -190,8 +190,8 @@ export function UploadDialog({ open, onOpenChange, onSuccess, initialData, categ
 
       // Upload document if selected
       if (documentFile) {
-        const fileExt = documentFile.name.split('.').pop();
-        const fileName = `${uuidv4()}.${fileExt}`;
+        const originalName = documentFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const fileName = `${uuidv4().substring(0,8)}_${originalName}`;
         const filePath = `documents/${fileName}`;
         
         const supabase = getSupabase();
