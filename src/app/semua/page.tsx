@@ -207,8 +207,8 @@ function KanbanBoard() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [extraVideoTitles, setExtraVideoTitles] = useState<Record<string, string>>({});
-+  // State to store fetched YouTube titles for preparation videos
-+  const [prepVideoTitles, setPrepVideoTitles] = useState<Record<string, string>>({});
+  // State to store fetched YouTube titles for preparation videos
+  const [prepVideoTitles, setPrepVideoTitles] = useState<Record<string, string>>({});
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
