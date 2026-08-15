@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Plus, Search, Filter, Settings, ChevronLeft, FlaskConical, LayoutGrid, Pencil, Trash2, BrainCircuit } from 'lucide-react';
+import { Plus, Search, Filter, Settings, ChevronLeft, FlaskConical, LayoutGrid, Pencil, Trash2, BrainCircuit, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -20,6 +20,7 @@ import { BackgroundOrbs } from '@/components/anatomy/BackgroundOrbs';
 import { PreparationCard } from '@/components/anatomy/PreparationCard';
 import { UploadDialog } from '@/components/anatomy/UploadDialog';
 import { CategoryUploadDialog } from '@/components/anatomy/CategoryUploadDialog';
+import { ProfileManager } from '@/components/anatomy/ProfileManager';
 
 type Preparation = {
   id: string;
@@ -219,6 +220,10 @@ export default function EditorDashboard() {
                     <LayoutGrid className="w-4 h-4 mr-2" />
                     Kategori Sistem
                   </TabsTrigger>
+                  <TabsTrigger value="profil" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-300">
+                    <Users className="w-4 h-4 mr-2" />
+                    Manajemen Profil
+                  </TabsTrigger>
                   <TabsTrigger value="kuis" onClick={() => router.push('/davey2kpubg/kuis')} className="data-[state=active]:bg-rose-500/20 data-[state=active]:text-rose-300">
                     <BrainCircuit className="w-4 h-4 mr-2" />
                     AnatoQuiz
@@ -363,6 +368,11 @@ export default function EditorDashboard() {
                     ))}
                   </div>
                 )}
+              </TabsContent>
+
+              {/* Tab: Profil */}
+              <TabsContent value="profil" className="mt-0">
+                <ProfileManager />
               </TabsContent>
             </Tabs>
           </div>

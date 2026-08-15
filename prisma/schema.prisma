@@ -93,3 +93,45 @@ model QuizOption {
   
   question      QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
 }
+
+model Profile {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  type           String   // "DOSEN", "STAFF", "ASLAB"
+  name           String
+  role           String
+  image          String?
+  email          String?
+  groupOrYear    String?  // For Aslab: "2024", "2025". For Dosen: "Kepala Laboratorium", "Sie Pendidikan", etc.
+  order          Int      @default(0) // For sorting hierarchical order
+
+  // Detailed Biodata Fields
+  origin         String?
+  birthDate      String?  
+  favoriteBlock  String?
+  hobby          String?
+  quotes         String?
+  
+  // Education History
+  eduSD          String?
+  eduSMP         String?
+  eduSMA         String?
+  eduS1          String?
+  eduS2          String?
+  eduS3          String?
+
+  // Social/Professional Links
+  linkScopus     String?
+  linkSinta      String?
+  linkScholar    String?
+  linkResearch   String?
+  
+  // Long text fields
+  description    String?  
+  organizations  String?  
+  intellectualProp String? 
+  address        String?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
