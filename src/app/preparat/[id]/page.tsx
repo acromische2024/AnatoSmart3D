@@ -1,15 +1,38 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { BackgroundOrbs } from '@/components/anatomy/BackgroundOrbs';
 import { CleanYoutubePlayer } from '@/components/anatomy/CleanYoutubePlayer';
 import { Button } from '@/components/ui/button';
-import { PlayCircle, FileText, ExternalLink, Box, Video, ChevronLeft, ArrowLeft } from 'lucide-react';
+import { 
+  PlayCircle, 
+  FileText, 
+  ExternalLink, 
+  Box, 
+  Video, 
+  ChevronLeft, 
+  ArrowLeft,
+  Target,
+  Sparkles,
+  MapPin,
+  Eye
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+
+type Marker = {
+  id: string;
+  label: string;
+  description: string | null;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  color: string | null;
+  order: number;
+};
 
 type Preparation = {
   id: string;
@@ -21,18 +44,20 @@ type Preparation = {
   thumbnailUrl: string | null;
   youtubeUrl: string | null;
   documentUrl: string | null;
+  markers?: Marker[];
 };
 
 export default function PreparatPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const router = useRouter();
   
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+
   const [currentPrep, setCurrentPrep] = useState<Preparation | null>(null);
   const [preparationsList, setPreparationsList] = useState<Preparation[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // State to hold fetched YouTube titles for each video URL
   const [youtubeTitles, setYoutubeTitles] = useState<string[]>([]);
+  const [activeHotspotIndex, setActiveHotspotIndex] = useState<number | null>(null);
 
   // Fetch titles when youtubeUrl changes
   useEffect(() => {
@@ -79,6 +104,72 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
     fetchData();
   }, [resolvedParams.id]);
 
+  // Combine DB markers & numbered points in description into interactive hotspots
+  const hotspotsList = useMemo(() => {
+    if (currentPrep?.markers && currentPrep.markers.length > 0) {
+      return currentPrep.markers.map((m, i) => ({
+        index: i,
+        label: m.label,
+        description: m.description || null,
+      }));
+    }
+
+    if (!currentPrep?.description) return [];
+    
+    const lines = currentPrep.description.split('\n');
+    const items: { index: number; label: string; description: string | null }[] = [];
+    let itemIdx = 0;
+    
+    lines.forEach((line) => {
+      const match = line.match(/^(\d+)[\.\)]\s*(.+)/);
+      if (match) {
+        const fullContent = match[2].trim();
+        const parts = fullContent.split(/[-–:]/);
+        const label = parts[0].trim();
+        const desc = parts.slice(1).join('-').trim() || null;
+        items.push({
+          index: itemIdx,
+          label,
+          description: desc,
+        });
+        itemIdx++;
+      }
+    });
+    return items;
+  }, [currentPrep?.markers, currentPrep?.description]);
+
+  // Handle hotspot selection & camera POV shift in p3d.in viewer
+  const handleSelectHotspot = (index: number) => {
+    setActiveHotspotIndex(index);
+    
+    if (!iframeRef.current) return;
+    const iframe = iframeRef.current;
+
+    // Send postMessage API commands to p3d.in iframe
+    if (iframe.contentWindow) {
+      const messages = [
+        { action: 'selectAnnotation', index },
+        { action: 'activateAnnotation', index },
+        { action: 'gotoAnnotation', index },
+        { type: 'selectAnnotation', index },
+        { type: 'activateAnnotation', index },
+        { action: 'setAnnotation', index: index + 1 },
+      ];
+      messages.forEach((msg) => {
+        try {
+          iframe.contentWindow?.postMessage(msg, '*');
+          iframe.contentWindow?.postMessage(JSON.stringify(msg), '*');
+        } catch {}
+      });
+    }
+
+    // Fallback: update iframe src URL hash to trigger annotation change in p3d.in viewer
+    if (currentPrep?.modelUrl && currentPrep.modelUrl.includes('p3d.in')) {
+      const baseUrl = getIframeUrl(currentPrep.modelUrl).split('#')[0];
+      iframe.src = `${baseUrl}#annotation=${index + 1}`;
+    }
+  };
+
   // Render 3D iframe securely
   const getIframeUrl = (url: string) => {
     if (url.includes('p3d.in')) {
@@ -95,13 +186,11 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
     if (!match) return url;
     
     const videoId = match[1];
-    const timeMatch = url.match(/[?&](?:t|start)=([^&\n]+)/); // Can be 120s or 120
+    const timeMatch = url.match(/[?&](?:t|start)=([^&\n]+)/);
     let startParam = '';
     
     if (timeMatch && timeMatch[1]) {
-      let timeVal = timeMatch[1];
-      // Convert '120s' to '120' if needed
-      timeVal = timeVal.replace('s', '');
+      let timeVal = timeMatch[1].replace('s', '');
       startParam = `?start=${timeVal}`;
     }
     
@@ -126,6 +215,8 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
       </div>
     );
   }
+
+  const activeHotspot = activeHotspotIndex !== null ? hotspotsList.find(h => h.index === activeHotspotIndex) : null;
 
   return (
     <div className="min-h-screen bg-[#050511] text-white flex flex-col font-sans h-screen overflow-hidden">
@@ -191,11 +282,12 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
               <p className="text-sky-400 text-sm">{currentPrep.category}</p>
             </div>
 
-            {/* 3D Model Viewer */}
-            <div className="w-full bg-black/50 border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative mb-8">
+            {/* 3D Model Viewer Container */}
+            <div className="w-full bg-black/50 border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative mb-6">
               {currentPrep.modelUrl ? (
                 <div className="w-full h-[50vh] md:h-[60vh] min-h-[400px] relative">
                   <iframe
+                    ref={iframeRef}
                     src={getIframeUrl(currentPrep.modelUrl)}
                     title={currentPrep.title}
                     className="absolute inset-0 w-full h-full border-0"
@@ -206,7 +298,6 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
                     execution-while-not-rendered="true"
                     web-share="true"
                   />
-                  {/* Subtle overlay to prevent harsh edges */}
                   <div className="absolute inset-0 pointer-events-none rounded-3xl shadow-[inset_0_0_50px_rgba(0,0,0,0.5)]" />
                 </div>
               ) : currentPrep.imageUrl ? (
@@ -224,6 +315,63 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
                 </div>
               )}
             </div>
+
+            {/* 3D Hotspot / POV Selector Bar */}
+            {hotspotsList.length > 0 && (
+              <div className="mb-8 p-5 bg-gradient-to-r from-sky-950/40 via-slate-900/60 to-purple-950/40 border border-sky-500/20 rounded-2xl shadow-xl">
+                <div className="flex items-center gap-2 mb-3">
+                  <Target className="w-4 h-4 text-sky-400 animate-pulse" />
+                  <h3 className="text-sm font-bold text-sky-200 tracking-wide uppercase">Fokus Kamera POV / Tag Hotspot 3D</h3>
+                  <span className="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full font-mono">
+                    {hotspotsList.length} Tag
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 mb-4">
+                  Klik tag nama bagian di bawah ini untuk memindahkan sudut pandang kamera 3D (POV) secara otomatis ke lokasi tersebut.
+                </p>
+
+                {/* Horizontal tag chips list */}
+                <div className="flex flex-wrap gap-2.5">
+                  {hotspotsList.map((spot) => {
+                    const isSelected = activeHotspotIndex === spot.index;
+                    return (
+                      <button
+                        key={spot.index}
+                        onClick={() => handleSelectHotspot(spot.index)}
+                        className={cn(
+                          "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 flex items-center gap-2 border cursor-pointer",
+                          isSelected
+                            ? "bg-sky-500 text-black border-sky-300 shadow-[0_0_15px_rgba(14,165,233,0.5)] scale-105"
+                            : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10 hover:border-sky-500/40 hover:text-white"
+                        )}
+                      >
+                        <MapPin className={cn("w-3.5 h-3.5", isSelected ? "text-black" : "text-sky-400")} />
+                        <span>{spot.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Active Hotspot Info Card */}
+                {activeHotspot && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 p-4 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-start gap-3"
+                  >
+                    <Eye className="w-5 h-5 text-sky-400 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-bold text-sm text-sky-200">Bagian Terfokus: {activeHotspot.label}</h4>
+                      {activeHotspot.description ? (
+                        <p className="text-xs text-slate-300 mt-1 leading-relaxed">{activeHotspot.description}</p>
+                      ) : (
+                        <p className="text-xs text-slate-400 italic mt-1">Kamera POV diarahkan ke titik {activeHotspot.label}</p>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            )}
 
             {/* Tabs Materi | Video */}
             <Tabs defaultValue="materi" className="w-full">
@@ -271,7 +419,6 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
                           {(() => {
                             const url = currentPrep.documentUrl || '';
                             const isPdf = url.toLowerCase().includes('.pdf');
-                            // Jika bukan PDF (misal PPTX/DOCX), kita gunakan Office Viewer yang lebih handal dari Google Docs untuk file besar
                             const iframeSrc = isPdf 
                               ? url 
                               : `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;

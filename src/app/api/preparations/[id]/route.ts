@@ -9,6 +9,7 @@ export async function GET(
     const { id } = await params;
     const preparation = await db.preparation.findUnique({
       where: { id },
+      include: { markers: { orderBy: { order: 'asc' } } },
     });
     if (!preparation) {
       return NextResponse.json(
