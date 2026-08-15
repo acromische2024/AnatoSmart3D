@@ -26,11 +26,16 @@ type Preparation = {
 export default function PreparatPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const router = useRouter();
+  
+  const [currentPrep, setCurrentPrep] = useState<Preparation | null>(null);
+  const [preparationsList, setPreparationsList] = useState<Preparation[]>([]);
+  const [loading, setLoading] = useState(true);
+
   // State to hold fetched YouTube titles for each video URL
-  const [youtubeTitles, setYoutubeTitles] = React.useState<string[]>([]);
+  const [youtubeTitles, setYoutubeTitles] = useState<string[]>([]);
 
   // Fetch titles when youtubeUrl changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (!currentPrep?.youtubeUrl) {
       setYoutubeTitles([]);
       return;
@@ -45,10 +50,6 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
       )
     ).then((titles) => setYoutubeTitles(titles));
   }, [currentPrep?.youtubeUrl]);
-  
-  const [currentPrep, setCurrentPrep] = useState<Preparation | null>(null);
-  const [preparationsList, setPreparationsList] = useState<Preparation[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
