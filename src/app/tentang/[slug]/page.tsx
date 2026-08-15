@@ -1,7 +1,7 @@
 import { db as prisma } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { BackgroundOrbs } from '@/components/anatomy/BackgroundOrbs';
-import { ChevronLeft, Mail, MapPin, Calendar, Heart, Quote, BookOpen, GraduationCap, Building2, ExternalLink } from 'lucide-react';
+import { ChevronLeft, Mail, MapPin, Calendar, Heart, Quote, BookOpen, GraduationCap, Building2, ExternalLink, Instagram } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -67,6 +67,37 @@ export default async function ProfilePage({ params }: { params: Promise<{ slug: 
                   {profile.email}
                 </div>
               )}
+              {profile.linkInstagram && (() => {
+                const raw = profile.linkInstagram.trim();
+                let username = raw;
+                let href = raw;
+
+                if (raw.includes('instagram.com/')) {
+                  const match = raw.match(/instagram\.com\/([a-zA-Z0-9_.]+)/);
+                  if (match && match[1]) {
+                    username = `@${match[1]}`;
+                  }
+                  if (!raw.startsWith('http')) {
+                    href = `https://${raw}`;
+                  }
+                } else {
+                  const cleanUser = raw.replace(/^@/, '');
+                  username = `@${cleanUser}`;
+                  href = `https://instagram.com/${cleanUser}`;
+                }
+
+                return (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl hover:bg-white/10 hover:text-pink-400 transition-colors group cursor-pointer"
+                  >
+                    <Instagram className="w-4 h-4 text-pink-400 group-hover:scale-110 transition-transform" />
+                    {username}
+                  </a>
+                );
+              })()}
               {profile.origin && (
                 <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl">
                   <MapPin className="w-4 h-4 text-slate-400" />

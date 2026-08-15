@@ -28,6 +28,7 @@ export type Profile = {
   eduS1: string | null;
   eduS2: string | null;
   eduS3: string | null;
+  linkInstagram: string | null;
   linkScopus: string | null;
   linkSinta: string | null;
   linkScholar: string | null;

@@ -122,6 +122,7 @@ model Profile {
   eduS3          String?
 
   // Social/Professional Links
+  linkInstagram  String?
   linkScopus     String?
   linkSinta      String?
   linkScholar    String?

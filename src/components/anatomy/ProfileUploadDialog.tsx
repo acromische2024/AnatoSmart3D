@@ -56,6 +56,7 @@ export function ProfileUploadDialog({
     eduS1: '',
     eduS2: '',
     eduS3: '',
+    linkInstagram: '',
     linkScopus: '',
     linkSinta: '',
     linkScholar: '',
@@ -77,7 +78,7 @@ export function ProfileUploadDialog({
       setFormData({
         name: '', role: '', email: '', groupOrYear: '', order: 0, origin: '', birthDate: '',
         favoriteBlock: '', hobby: '', quotes: '', eduSD: '', eduSMP: '', eduSMA: '',
-        eduS1: '', eduS2: '', eduS3: '', linkScopus: '', linkSinta: '', linkScholar: '',
+        eduS1: '', eduS2: '', eduS3: '', linkInstagram: '', linkScopus: '', linkSinta: '', linkScholar: '',
         linkResearch: '', description: '', organizations: '', intellectualProp: '', address: ''
       });
     }
@@ -191,6 +192,11 @@ export function ProfileUploadDialog({
             <div className="space-y-2">
               <Label>Email</Label>
               <Input type="email" name="email" value={formData.email || ''} onChange={handleChange} className="bg-white/5 border-white/10" />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Instagram (Link URL atau Username)</Label>
+              <Input name="linkInstagram" value={formData.linkInstagram || ''} onChange={handleChange} placeholder="e.g. https://instagram.com/username atau @username" className="bg-white/5 border-white/10" />
             </div>
 
             <div className="space-y-2">
