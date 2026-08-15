@@ -16,7 +16,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, slug, description, imageUrl, youtubeUrl, extraVideoUrl, order } = body;
+    const { name, slug, description, imageUrl, youtubeUrl, extraVideoUrl, documentUrl, order } = body;
 
     if (!name || !slug) {
       return NextResponse.json({ error: 'Name and slug are required' }, { status: 400 });
@@ -30,6 +30,7 @@ export async function POST(request: Request) {
         imageUrl,
         youtubeUrl,
         extraVideoUrl,
+        documentUrl,
         order: order || 0,
       },
     });

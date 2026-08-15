@@ -49,6 +49,7 @@ model SystemCategory {
   imageUrl      String?
   youtubeUrl    String?
   extraVideoUrl String?
+  documentUrl   String?
   order         Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

@@ -8,7 +8,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, slug, description, imageUrl, youtubeUrl, extraVideoUrl, order } = body;
+    const { name, slug, description, imageUrl, youtubeUrl, extraVideoUrl, documentUrl, order } = body;
 
     const category = await db.systemCategory.update({
       where: { id },
@@ -19,6 +19,7 @@ export async function PUT(
         ...(imageUrl !== undefined && { imageUrl }),
         ...(youtubeUrl !== undefined && { youtubeUrl }),
         ...(extraVideoUrl !== undefined && { extraVideoUrl }),
+        ...(documentUrl !== undefined && { documentUrl }),
         ...(order !== undefined && { order }),
       },
     });

@@ -12,7 +12,8 @@ import {
   BookOpen,
   Microscope,
   ChevronRight,
-  PlayCircle
+  PlayCircle,
+  FileText
 } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import { BackgroundOrbs } from '@/components/anatomy/BackgroundOrbs';
@@ -25,6 +26,7 @@ type SystemCategory = {
   imageUrl: string | null;
   youtubeUrl: string | null;
   extraVideoUrl?: string | null;
+  documentUrl?: string | null;
   order: number;
 };
 
@@ -331,26 +333,83 @@ export default function SystemDetailPage() {
   };
 
   // Komponen Materi
-  const MateriContent = () => (
-    <div className="bg-slate-900/40 border border-white/10 rounded-2xl p-5 sm:p-8">
-      <div className="flex items-start gap-4">
-        <div className="w-12 h-12 rounded-xl bg-sky-500/10 flex items-center justify-center shrink-0">
-          <BookOpen className="w-6 h-6 text-sky-400" />
-        </div>
-        <div className="flex-1">
-          <h3 className="font-bold text-lg sm:text-xl mb-3">Materi Overview</h3>
-          <div className="text-sm sm:text-base text-slate-300 leading-relaxed space-y-4">
-            <p>
-              {category.description || 'Sistem ini merupakan bagian penting dari anatomi tubuh manusia. Pelajari lebih lanjut melalui preparat 3D interaktif dan video pembelajaran yang tersedia.'}
-            </p>
-            <p>
-              Gunakan fitur preparat 3D untuk eksplorasi visual yang lebih mendalam, atau tonton video AnatoPlay untuk penjelasan komprehensif dari para ahli.
-            </p>
+  const MateriContent = () => {
+    const catDocUrls = category.documentUrl
+      ? category.documentUrl.split(/[,]+/).map(u => u.trim()).filter(u => u !== '')
+      : [];
+    const prepDocs = preparations.filter(p => p.youtubeUrl === null && p.description); // placeholder
+    const prepWithDocs = preparations.filter(p => (p as any).documentUrl);
+
+    const getFileName = (url: string) => {
+      const parts = url.split('/').pop() || 'Dokumen';
+      const underscoreIndex = parts.indexOf('_');
+      if (underscoreIndex > 0 && underscoreIndex < 40) {
+        return decodeURIComponent(parts.slice(underscoreIndex + 1));
+      }
+      return decodeURIComponent(parts);
+    };
+
+    if (catDocUrls.length === 0) {
+      return (
+        <div className="bg-slate-900/40 border border-white/10 rounded-2xl p-5 sm:p-8">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-xl bg-sky-500/10 flex items-center justify-center shrink-0">
+              <BookOpen className="w-6 h-6 text-sky-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-lg sm:text-xl mb-3">Materi Overview</h3>
+              <div className="text-sm sm:text-base text-slate-300 leading-relaxed space-y-4">
+                <p>
+                  {category.description || 'Sistem ini merupakan bagian penting dari anatomi tubuh manusia. Pelajari lebih lanjut melalui preparat 3D interaktif dan video pembelajaran yang tersedia.'}
+                </p>
+                <p className="text-slate-500 text-sm">
+                  Belum ada dokumen materi yang diupload untuk sistem ini.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        {/* Description */}
+        {category.description && (
+          <div className="bg-slate-900/40 border border-white/10 rounded-2xl p-5 sm:p-6">
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+              {category.description}
+            </p>
+          </div>
+        )}
+        {/* Document cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {catDocUrls.map((url, i) => {
+            const fileName = getFileName(url);
+            return (
+              <div key={i} className="bg-[#111118] border border-emerald-500/10 rounded-2xl p-4 flex items-center justify-between hover:border-emerald-500/30 hover:bg-emerald-500/[0.03] transition-all duration-200">
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-semibold text-sm text-white truncate">{fileName}</h4>
+                    <p className="text-xs text-emerald-400/60">Dokumen Materi</p>
+                  </div>
+                </div>
+                <button 
+                  className="text-xs font-medium px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 shrink-0 ml-2 transition-colors"
+                  onClick={() => window.open(url, '_blank')}
+                >
+                  Buka
+                </button>
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Komponen Kuis
   const KuisContent = () => (

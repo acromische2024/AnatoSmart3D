@@ -43,6 +43,7 @@ type SystemCategory = {
   imageUrl: string | null;
   youtubeUrl: string | null;
   extraVideoUrl?: string | null;
+  documentUrl?: string | null;
   order: number;
 };
 
@@ -566,40 +567,99 @@ function KanbanBoard() {
                   )}
 
                   {(() => {
-                    const docs = getPrepsForCategory(currentCat.name).filter(p => p.documentUrl);
+                    // Category-level documents
+                    const catDocUrls = currentCat.documentUrl
+                      ? currentCat.documentUrl.split(/[,]+/).map(u => u.trim()).filter(u => u !== '')
+                      : [];
+                    // Preparat-level documents  
+                    const prepDocs = getPrepsForCategory(currentCat.name).filter(p => p.documentUrl);
+                    const totalDocs = catDocUrls.length + prepDocs.length;
                     
-                    if (docs.length === 0) return (
+                    if (totalDocs === 0) return (
                       <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-8 text-center">
                         <FileText className="w-10 h-10 text-slate-700 mx-auto mb-3" />
                         <p className="text-sm text-slate-500">Belum ada dokumen materi untuk sistem ini.</p>
                       </div>
                     );
 
+                    const getFileName = (url: string) => {
+                      const parts = url.split('/').pop() || 'Dokumen';
+                      const underscoreIndex = parts.indexOf('_');
+                      if (underscoreIndex > 0 && underscoreIndex < 40) {
+                        return decodeURIComponent(parts.slice(underscoreIndex + 1));
+                      }
+                      return decodeURIComponent(parts);
+                    };
+
                     return (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                        {docs.map((doc, i) => {
-                          const fileName = doc.documentUrl?.split('/').pop()?.split('_').slice(1).join('_') || 'Dokumen';
-                          return (
-                            <div key={i} className="bg-[#111118] border border-white/5 rounded-2xl p-5 flex items-center justify-between hover:border-emerald-500/30 transition-colors">
-                               <div className="flex items-center gap-3 overflow-hidden">
-                                 <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                                    <FileText className="w-5 h-5 text-emerald-400" />
-                                 </div>
-                                 <div className="min-w-0">
-                                    <h4 className="font-semibold text-sm text-white truncate">{doc.title}</h4>
-                                    <p className="text-xs text-slate-500 truncate">{fileName}</p>
-                                 </div>
-                               </div>
-                               <Button 
-                                 size="sm" 
-                                 className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 shrink-0 ml-2"
-                                 onClick={() => window.open(doc.documentUrl || '', '_blank')}
-                               >
-                                 Buka
-                               </Button>
+                      <div className="space-y-4">
+                        {/* Category-level documents */}
+                        {catDocUrls.length > 0 && (
+                          <div className="space-y-3">
+                            {mode === 'materi' && catDocUrls.length > 0 && prepDocs.length > 0 && (
+                              <h3 className="text-xs font-semibold text-emerald-400/70 uppercase tracking-wider">Materi Kategori</h3>
+                            )}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                              {catDocUrls.map((url, i) => {
+                                const fileName = getFileName(url);
+                                return (
+                                  <div key={`cat-${i}`} className="bg-[#111118] border border-emerald-500/10 rounded-2xl p-5 flex items-center justify-between hover:border-emerald-500/30 transition-colors">
+                                    <div className="flex items-center gap-3 overflow-hidden">
+                                      <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                                        <FileText className="w-5 h-5 text-emerald-400" />
+                                      </div>
+                                      <div className="min-w-0">
+                                        <h4 className="font-semibold text-sm text-white truncate">{fileName}</h4>
+                                        <p className="text-xs text-emerald-400/60 truncate">Materi {currentCat.name}</p>
+                                      </div>
+                                    </div>
+                                    <Button 
+                                      size="sm" 
+                                      className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 shrink-0 ml-2"
+                                      onClick={() => window.open(url, '_blank')}
+                                    >
+                                      Buka
+                                    </Button>
+                                  </div>
+                                );
+                              })}
                             </div>
-                          );
-                        })}
+                          </div>
+                        )}
+
+                        {/* Preparat-level documents */}
+                        {prepDocs.length > 0 && (
+                          <div className="space-y-3">
+                            {mode === 'materi' && catDocUrls.length > 0 && prepDocs.length > 0 && (
+                              <h3 className="text-xs font-semibold text-sky-400/70 uppercase tracking-wider">Materi Preparat</h3>
+                            )}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                              {prepDocs.map((doc, i) => {
+                                const fileName = getFileName(doc.documentUrl || '');
+                                return (
+                                  <div key={`prep-${i}`} className="bg-[#111118] border border-white/5 rounded-2xl p-5 flex items-center justify-between hover:border-emerald-500/30 transition-colors">
+                                    <div className="flex items-center gap-3 overflow-hidden">
+                                      <div className="w-10 h-10 shrink-0 rounded-lg bg-sky-500/10 flex items-center justify-center">
+                                        <FileText className="w-5 h-5 text-sky-400" />
+                                      </div>
+                                      <div className="min-w-0">
+                                        <h4 className="font-semibold text-sm text-white truncate">{doc.title}</h4>
+                                        <p className="text-xs text-slate-500 truncate">{fileName}</p>
+                                      </div>
+                                    </div>
+                                    <Button 
+                                      size="sm" 
+                                      className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 shrink-0 ml-2"
+                                      onClick={() => window.open(doc.documentUrl || '', '_blank')}
+                                    >
+                                      Buka
+                                    </Button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     );
                   })()}

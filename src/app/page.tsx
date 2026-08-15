@@ -64,7 +64,7 @@ export default function HomePage() {
     { label: 'Preparat', href: '/semua?mode=preparat_only' },
     { label: 'AnatoPlay', href: '/semua?mode=video' },
     { label: 'AnatoQuiz', href: '/semua?mode=kuis' },
-    { label: 'Materi', href: '#' },
+    { label: 'Materi', href: '/semua?mode=materi' },
     { label: 'Tentang', href: '/tentang' },
   ];
 

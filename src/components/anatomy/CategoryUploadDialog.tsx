@@ -18,6 +18,8 @@ import {
   Image as ImageIcon,
   Loader2,
   FileUp,
+  FileText,
+  Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getSupabase } from '@/lib/supabaseClient';
@@ -30,6 +32,8 @@ type SystemCategory = {
   description: string | null;
   imageUrl: string | null;
   youtubeUrl: string | null;
+  extraVideoUrl?: string | null;
+  documentUrl?: string | null;
   order: number;
 };
 
@@ -53,6 +57,11 @@ export function CategoryUploadDialog({ open, onOpenChange, onSuccess, initialDat
   const [uploading, setUploading] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
+  // Document (materi) upload state
+  const [documentFiles, setDocumentFiles] = useState<File[]>([]);
+  const [existingDocs, setExistingDocs] = useState<string[]>([]);
+  const docInputRef = useRef<HTMLInputElement>(null);
+
   const isEditing = !!initialData;
 
   const resetForm = useCallback(() => {
@@ -64,6 +73,8 @@ export function CategoryUploadDialog({ open, onOpenChange, onSuccess, initialDat
     setOrder(0);
     setImageFile(null);
     setImagePreview(null);
+    setDocumentFiles([]);
+    setExistingDocs([]);
   }, []);
 
   useEffect(() => {
@@ -78,6 +89,14 @@ export function CategoryUploadDialog({ open, onOpenChange, onSuccess, initialDat
         if (initialData.imageUrl) {
           setImagePreview(initialData.imageUrl);
         }
+        // Parse existing document URLs
+        if (initialData.documentUrl) {
+          const docs = initialData.documentUrl.split(/[,]+/).map(u => u.trim()).filter(u => u !== '');
+          setExistingDocs(docs);
+        } else {
+          setExistingDocs([]);
+        }
+        setDocumentFiles([]);
       } else {
         resetForm();
       }
@@ -99,6 +118,33 @@ export function CategoryUploadDialog({ open, onOpenChange, onSuccess, initialDat
       reader.onloadend = () => setImagePreview(reader.result as string);
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleDocSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setDocumentFiles(prev => [...prev, ...files]);
+    }
+    // Reset input so user can re-select the same file
+    if (docInputRef.current) docInputRef.current.value = '';
+  };
+
+  const removeNewDoc = (index: number) => {
+    setDocumentFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeExistingDoc = (index: number) => {
+    setExistingDocs(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const getFileName = (url: string) => {
+    const parts = url.split('/').pop() || 'Dokumen';
+    // Remove UUID prefix if present (format: uuid_originalname.ext)
+    const underscoreIndex = parts.indexOf('_');
+    if (underscoreIndex > 0 && underscoreIndex < 40) {
+      return decodeURIComponent(parts.slice(underscoreIndex + 1));
+    }
+    return decodeURIComponent(parts);
   };
 
   const handleSubmit = async () => {
@@ -131,6 +177,37 @@ export function CategoryUploadDialog({ open, onOpenChange, onSuccess, initialDat
         imageUrl = publicUrl;
       }
 
+      // Upload document files
+      const newDocUrls: string[] = [];
+      if (documentFiles.length > 0) {
+        const supabase = getSupabase();
+        for (const file of documentFiles) {
+          const fileExt = file.name.split('.').pop();
+          const originalName = file.name;
+          const fileName = `${uuidv4()}_${originalName}`;
+          const filePath = `documents/${fileName}`;
+          
+          const { error: docUploadError } = await supabase.storage
+            .from('anatomy-assets')
+            .upload(filePath, file);
+            
+          if (docUploadError) {
+            toast.error(`Gagal upload ${originalName}: ${docUploadError.message}`);
+            continue;
+          }
+          
+          const { data: { publicUrl } } = supabase.storage
+            .from('anatomy-assets')
+            .getPublicUrl(filePath);
+            
+          newDocUrls.push(publicUrl);
+        }
+      }
+
+      // Combine existing + new document URLs
+      const allDocUrls = [...existingDocs, ...newDocUrls];
+      const documentUrl = allDocUrls.length > 0 ? allDocUrls.join(',') : null;
+
       const url = isEditing ? `/api/categories/${initialData.id}` : '/api/categories';
       const method = isEditing ? 'PUT' : 'POST';
 
@@ -140,6 +217,7 @@ export function CategoryUploadDialog({ open, onOpenChange, onSuccess, initialDat
         description: description.trim() || null,
         youtubeUrl: youtubeUrl.trim() || null,
         extraVideoUrl: extraVideoUrl.trim() || null,
+        documentUrl,
         order: Number(order) || 0,
       };
 
@@ -311,6 +389,77 @@ export function CategoryUploadDialog({ open, onOpenChange, onSuccess, initialDat
                   </motion.button>
                 )}
               </AnimatePresence>
+            </div>
+
+            {/* Document (Materi) upload */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-emerald-400" /> Upload Materi (Dokumen)
+              </label>
+              <input
+                ref={docInputRef}
+                type="file"
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
+                multiple
+                className="hidden"
+                onChange={handleDocSelect}
+              />
+
+              {/* Existing docs list */}
+              {existingDocs.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs text-slate-500">Dokumen yang sudah ada:</p>
+                  {existingDocs.map((url, i) => (
+                    <div key={`existing-${i}`} className="flex items-center gap-2 bg-emerald-500/5 border border-emerald-500/10 rounded-lg p-2">
+                      <FileText className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span className="text-xs text-slate-300 truncate flex-1">{getFileName(url)}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="w-6 h-6 rounded-full hover:bg-red-500/20 text-slate-500 hover:text-red-400 shrink-0"
+                        onClick={() => removeExistingDoc(i)}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* New docs list */}
+              {documentFiles.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs text-slate-500">Dokumen baru untuk diupload:</p>
+                  {documentFiles.map((file, i) => (
+                    <div key={`new-${i}`} className="flex items-center gap-2 bg-sky-500/5 border border-sky-500/10 rounded-lg p-2">
+                      <FileText className="w-4 h-4 text-sky-400 shrink-0" />
+                      <span className="text-xs text-slate-300 truncate flex-1">{file.name}</span>
+                      <span className="text-[10px] text-slate-500 shrink-0">{(file.size / 1024).toFixed(0)} KB</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="w-6 h-6 rounded-full hover:bg-red-500/20 text-slate-500 hover:text-red-400 shrink-0"
+                        onClick={() => removeNewDoc(i)}
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <button
+                onClick={() => docInputRef.current?.click()}
+                className="w-full h-24 rounded-xl border-2 border-dashed border-emerald-500/20 hover:border-emerald-500/40 flex flex-col items-center justify-center gap-1.5 transition-colors duration-300 group cursor-pointer"
+              >
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
+                  <FileUp className="w-4 h-4 text-emerald-400/60 group-hover:text-emerald-400 transition-colors" />
+                </div>
+                <span className="text-xs text-slate-500 group-hover:text-slate-400 transition-colors">
+                  Klik untuk tambah dokumen materi
+                </span>
+                <span className="text-[10px] text-slate-600">PDF, Word, PPT, Excel</span>
+              </button>
             </div>
           </div>
 
