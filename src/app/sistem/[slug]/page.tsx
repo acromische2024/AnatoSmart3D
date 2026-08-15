@@ -46,6 +46,8 @@ export default function SystemDetailPage() {
   const [category, setCategory] = useState<SystemCategory | null>(null);
   const [preparations, setPreparations] = useState<Preparation[]>([]);
   const [loading, setLoading] = useState(true);
+  // State to store fetched YouTube titles for preparation videos
+  const [prepVideoTitles, setPrepVideoTitles] = useState<Record<string, string>>({});
   const [mobileTab, setMobileTab] = useState('preparat'); // Default ke preparat di mobile!
   const [extraVideoTitles, setExtraVideoTitles] = useState<Record<string, string>>({});
 
@@ -99,6 +101,29 @@ export default function SystemDetailPage() {
       }
     }
     fetchData();
+    // After preparations are loaded, fetch original YouTube titles for each preparation video
+    (async () => {
+      const titles: Record<string, string> = {};
+      await Promise.all(preparations.map(async (prep) => {
+        if (prep.youtubeUrl) {
+          const urls = prep.youtubeUrl.split(/[\s,]+/).filter((u) => u.trim() !== '');
+          await Promise.all(urls.map(async (url) => {
+            const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?\n]+)/);
+            const videoId = match ? match[1] : null;
+            if (videoId && !titles[videoId]) {
+              try {
+                const oembedRes = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+                if (oembedRes.ok) {
+                  const data = await oembedRes.json();
+                  if (data.title) titles[videoId] = data.title;
+                }
+              } catch (e) {}
+            }
+          }));
+        }
+      }));
+      setPrepVideoTitles(titles);
+    })();
   }, [slug]);
 
   const getVideosForCategory = () => {
