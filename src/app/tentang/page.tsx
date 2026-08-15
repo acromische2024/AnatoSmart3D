@@ -177,7 +177,7 @@ export default function TentangPage() {
                           <img 
                             src={person.image} 
                             alt={person.name}
-                            className="w-full h-full object-cover opacity-80 group-hover:opacity-100"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
                         ) : (
                           <span className="text-3xl font-bold text-slate-400">{person.name.charAt(0)}</span>
@@ -247,12 +247,12 @@ export default function TentangPage() {
                           <img 
                             src={aslab.image} 
                             alt={aslab.name}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                           />
                         ) : (
                           <span className="text-5xl font-bold text-slate-500">{aslab.name.charAt(0)}</span>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#111118] via-[#111118]/20 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#111118] via-transparent to-transparent pointer-events-none" />
                       </div>
                       <div className="p-4 text-center relative -mt-6">
                         <h3 className="font-bold text-lg text-white mb-1 group-hover:text-purple-300 transition-colors line-clamp-1">{aslab.name}</h3>

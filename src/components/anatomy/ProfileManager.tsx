@@ -109,30 +109,43 @@ export function ProfileManager() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden p-6 relative group hover:border-emerald-500/30 transition-all"
+                onClick={() => handleEdit(profile)}
+                className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden p-6 relative group hover:border-emerald-500/40 hover:bg-white/[0.07] transition-all cursor-pointer hover:-translate-y-1 shadow-lg"
               >
-                <div className="absolute top-4 right-4 flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                  <Button size="icon" variant="ghost" onClick={() => handleEdit(profile)} className="h-8 w-8 bg-sky-500/20 text-sky-400 hover:bg-sky-500/30 hover:text-sky-300">
+                <div className="absolute top-4 right-4 flex gap-2 z-10">
+                  <Button 
+                    size="icon" 
+                    variant="ghost" 
+                    onClick={(e) => { e.stopPropagation(); handleEdit(profile); }} 
+                    className="h-8 w-8 bg-sky-500/20 text-sky-400 hover:bg-sky-500/30 hover:text-sky-300 transition-colors"
+                    title="Edit Profil"
+                  >
                     <Pencil className="w-4 h-4" />
                   </Button>
-                  <Button size="icon" variant="ghost" onClick={() => handleDelete(profile.id)} className="h-8 w-8 bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 hover:text-rose-300">
+                  <Button 
+                    size="icon" 
+                    variant="ghost" 
+                    onClick={(e) => { e.stopPropagation(); handleDelete(profile.id); }} 
+                    className="h-8 w-8 bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 hover:text-rose-300 transition-colors"
+                    title="Hapus Profil"
+                  >
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
 
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 rounded-full overflow-hidden bg-slate-800 border-2 border-emerald-500/20 shrink-0">
+                <div className="flex items-center gap-4 pr-16">
+                  <div className="w-16 h-16 rounded-full overflow-hidden bg-slate-800 border-2 border-emerald-500/20 shrink-0 shadow-md">
                     {profile.image ? (
-                      <img src={profile.image} alt={profile.name} className="w-full h-full object-cover" />
+                      <img src={profile.image} alt={profile.name} className="w-full h-full object-cover opacity-100" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-slate-700 text-slate-400 text-xl font-bold">
                         {profile.name.charAt(0)}
                       </div>
                     )}
                   </div>
-                  <div>
-                    <h3 className="font-bold text-lg leading-tight line-clamp-2">{profile.name}</h3>
-                    <p className="text-emerald-400 text-sm font-medium">{profile.role}</p>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-lg leading-tight line-clamp-2 text-white group-hover:text-emerald-300 transition-colors">{profile.name}</h3>
+                    <p className="text-emerald-400 text-sm font-medium line-clamp-1">{profile.role}</p>
                     <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-white/10 text-[10px] uppercase font-bold text-slate-300">
                       {profile.type} {profile.groupOrYear && `• ${profile.groupOrYear}`}
                     </span>
