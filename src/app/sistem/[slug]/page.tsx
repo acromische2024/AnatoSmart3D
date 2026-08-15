@@ -294,7 +294,7 @@ export default function SystemDetailPage() {
                   )}
                 </div>
                 <div className="p-4">
-                  <h4 className="font-semibold text-sm text-slate-200 line-clamp-2 group-hover:text-white transition-colors">{prep.titles.join(' & ')}</h4>
+                  <h4 className="font-semibold text-sm text-slate-200 line-clamp-2">{prepVideoTitles[videoId] ?? prep.titles[0]}</h4>
                 </div>
               </motion.div>
             );

@@ -111,7 +111,7 @@ export function ProfileManager() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden p-6 relative group hover:border-emerald-500/30 transition-all"
               >
-                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-4 right-4 flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                   <Button size="icon" variant="ghost" onClick={() => handleEdit(profile)} className="h-8 w-8 bg-sky-500/20 text-sky-400 hover:bg-sky-500/30 hover:text-sky-300">
                     <Pencil className="w-4 h-4" />
                   </Button>

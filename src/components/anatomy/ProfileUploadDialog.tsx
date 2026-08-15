@@ -154,7 +154,7 @@ export function ProfileUploadDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] bg-[#050511] text-white border-white/10 max-h-[85vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-[90%] sm:max-w-[700px] bg-[#050511] text-white border-white/10 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">{initialData ? 'Edit Profil' : 'Tambah Profil'}</DialogTitle>
         </DialogHeader>
