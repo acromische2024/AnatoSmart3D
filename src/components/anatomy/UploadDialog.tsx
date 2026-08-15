@@ -254,7 +254,8 @@ export function UploadDialog({ open, onOpenChange, onSuccess, initialData, categ
       onSuccess(prep);
     } catch (err) {
       console.error(err);
-      toast.error('Gagal mengunggah preparat. Silakan coba lagi.');
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      toast.error(`Gagal: ${errorMessage}`);
     } finally {
       setUploading(false);
     }
