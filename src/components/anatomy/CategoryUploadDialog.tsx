@@ -20,6 +20,8 @@ import {
   FileUp,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabaseClient';
+import { v4 as uuidv4 } from 'uuid';
 
 type SystemCategory = {
   id: string;
@@ -111,18 +113,21 @@ export function CategoryUploadDialog({ open, onOpenChange, onSuccess, initialDat
 
       // Upload image if selected
       if (imageFile) {
-        const imgFormData = new FormData();
-        imgFormData.append('file', imageFile);
-        const imgRes = await fetch('/api/preparations/upload-image', {
-          method: 'POST',
-          body: imgFormData,
-        });
-        if (!imgRes.ok) {
-          const imgErr = await imgRes.json().catch(() => ({}));
-          throw new Error(imgErr.error || 'Gagal mengunggah gambar. Pastikan format benar dan ukuran tidak terlalu besar.');
-        }
-        const imgData = await imgRes.json();
-        imageUrl = imgData.url;
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${uuidv4()}.${fileExt}`;
+        const filePath = `images/${fileName}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('anatomy-assets')
+          .upload(filePath, imageFile);
+          
+        if (uploadError) throw new Error(`Image upload failed: ${uploadError.message}`);
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('anatomy-assets')
+          .getPublicUrl(filePath);
+          
+        imageUrl = publicUrl;
       }
 
       const url = isEditing ? `/api/categories/${initialData.id}` : '/api/categories';

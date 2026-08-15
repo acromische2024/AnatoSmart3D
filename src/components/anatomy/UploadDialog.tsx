@@ -30,6 +30,8 @@ import {
   FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabaseClient';
+import { v4 as uuidv4 } from 'uuid';
 
 type Preparation = {
   id: string;
@@ -146,43 +148,61 @@ export function UploadDialog({ open, onOpenChange, onSuccess, initialData, categ
 
       // Upload image if selected
       if (imageFile) {
-        const imgFormData = new FormData();
-        imgFormData.append('file', imageFile);
-        const imgRes = await fetch('/api/preparations/upload-image', {
-          method: 'POST',
-          body: imgFormData,
-        });
-        if (!imgRes.ok) throw new Error('Image upload failed');
-        const imgData = await imgRes.json();
-        imageUrl = imgData.url;
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${uuidv4()}.${fileExt}`;
+        const filePath = `images/${fileName}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('anatomy-assets')
+          .upload(filePath, imageFile);
+          
+        if (uploadError) throw new Error(`Image upload failed: ${uploadError.message}`);
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('anatomy-assets')
+          .getPublicUrl(filePath);
+          
+        imageUrl = publicUrl;
       }
 
       // Upload 3D model if selected
       if (modelFile) {
-        const mdlFormData = new FormData();
-        mdlFormData.append('file', modelFile);
-        const mdlRes = await fetch('/api/preparations/upload-model', {
-          method: 'POST',
-          body: mdlFormData,
-        });
-        if (!mdlRes.ok) throw new Error('Model upload failed');
-        const mdlData = await mdlRes.json();
-        modelUrl = mdlData.url;
+        const fileExt = modelFile.name.split('.').pop();
+        const fileName = `${uuidv4()}.${fileExt}`;
+        const filePath = `models/${fileName}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('anatomy-assets')
+          .upload(filePath, modelFile);
+          
+        if (uploadError) throw new Error(`Model upload failed: ${uploadError.message}`);
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('anatomy-assets')
+          .getPublicUrl(filePath);
+          
+        modelUrl = publicUrl;
       } else if (modelUrlInput.trim()) {
         modelUrl = modelUrlInput.trim();
       }
 
       // Upload document if selected
       if (documentFile) {
-        const docFormData = new FormData();
-        docFormData.append('file', documentFile);
-        const docRes = await fetch('/api/preparations/upload-document', {
-          method: 'POST',
-          body: docFormData,
-        });
-        if (!docRes.ok) throw new Error('Document upload failed');
-        const docData = await docRes.json();
-        documentUrl = docData.url;
+        const fileExt = documentFile.name.split('.').pop();
+        const fileName = `${uuidv4()}.${fileExt}`;
+        const filePath = `documents/${fileName}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('anatomy-assets')
+          .upload(filePath, documentFile);
+          
+        if (uploadError) throw new Error(`Document upload failed: ${uploadError.message}`);
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('anatomy-assets')
+          .getPublicUrl(filePath);
+          
+        documentUrl = publicUrl;
       }
 
       // Create or update preparation record
