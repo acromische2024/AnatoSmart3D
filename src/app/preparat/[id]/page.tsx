@@ -146,8 +146,6 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
     );
   }
 
-  const activeHotspot = activeHotspotIndex !== null ? hotspotsList.find(h => h.index === activeHotspotIndex) : null;
-
   return (
     <div className="min-h-screen bg-[#050511] text-white flex flex-col font-sans h-screen overflow-hidden">
       

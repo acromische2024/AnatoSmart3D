@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { Navbar } from '@/components/anatomy/Navbar';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -465,23 +466,9 @@ export default function SystemDetailPage() {
     >
       <BackgroundOrbs />
 
-      {/* Navbar */}
-      <header className="relative z-50 px-4 sm:px-6 lg:px-10 pt-3 sm:pt-4 pb-2">
-        <nav className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full text-slate-400 hover:text-white hover:bg-white/10"
-            onClick={() => router.push('/')}
-          >
-            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-          </Button>
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Logo" className="w-5 h-5 sm:w-6 sm:h-6 object-contain" />
-            <span className="font-bold tracking-tight text-sm sm:text-base">{category.name}</span>
-          </div>
-        </nav>
-      </header>
+      <Suspense fallback={<div className="h-16 bg-[#050511]" />}>
+        <Navbar />
+      </Suspense>
 
       {/* Hero Section — Full width */}
       <section className="relative z-10 px-4 sm:px-6 lg:px-10 mt-2 sm:mt-4">

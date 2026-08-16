@@ -11,14 +11,6 @@ export default async function HomePage() {
     orderBy: { order: 'asc' },
   });
 
-  const navLinks = [
-    { label: 'Preparat', href: '/semua?mode=preparat_only' },
-    { label: 'AnatoPlay', href: '/semua?mode=video' },
-    { label: 'AnatoQuiz', href: '/semua?mode=kuis' },
-    { label: 'Materi', href: '/semua?mode=materi' },
-    { label: 'Tentang', href: '/tentang' },
-  ];
-
   return (
     <div className="min-h-screen flex flex-col bg-[#050511] overflow-x-hidden text-white font-sans selection:bg-sky-500/30">
       
@@ -34,7 +26,7 @@ export default async function HomePage() {
       <BackgroundOrbs />
 
       {/* Navbar Header Component */}
-      <HomeHeader navLinks={navLinks} />
+      <HomeHeader />
 
       {/* Main Content */}
       <main className="flex-1 relative z-10 flex flex-col items-center p-4 sm:p-6 py-8 sm:py-12 lg:py-20 xl:py-28 2xl:py-32">

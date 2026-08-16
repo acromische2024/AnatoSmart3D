@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { Navbar } from '@/components/anatomy/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { 
@@ -129,61 +130,9 @@ export default function TentangPage() {
 
       <BackgroundOrbs />
 
-      <header className="relative z-50 pt-4 sm:pt-6 px-4 sm:px-6 md:px-12 xl:px-16 2xl:px-24">
-        <nav className="flex items-center justify-between mx-auto max-w-7xl xl:max-w-[1400px]">
-          <div 
-            className="flex items-center gap-3 xl:gap-4 cursor-pointer select-none"
-            onClick={() => router.push('/')}
-          >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(255,255,255,0.3)] bg-[#050511]">
-              <img src="/logo.png" alt="AnatoSmart Logo" className="w-full h-full object-cover pointer-events-none" draggable={false} />
-            </div>
-            <span className="font-bold text-lg sm:text-xl tracking-tight">AnatoSmart</span>
-          </div>
-
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
-            {navLinks.map((link) => (
-              <button
-                key={link.label}
-                onClick={() => router.push(link.href)}
-                className="relative group hover:text-white transition-colors"
-              >
-                {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-sky-400 transition-all duration-300 group-hover:w-full" />
-              </button>
-            ))}
-            <button className="relative group text-white transition-colors">
-              Tentang
-              <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-sky-400" />
-            </button>
-          </div>
-
-          <button
-            className="md:hidden p-2 text-slate-300 hover:text-white"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </nav>
-
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="md:hidden mt-4 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-2"
-          >
-            {navLinks.map((link) => (
-              <button
-                key={link.label}
-                onClick={() => router.push(link.href)}
-                className="block w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5"
-              >
-                {link.label}
-              </button>
-            ))}
-          </motion.div>
-        )}
-      </header>
+      <Suspense fallback={<div className="h-16 bg-[#050511]" />}>
+        <Navbar />
+      </Suspense>
 
       <main className="flex-1 relative z-10 flex flex-col items-center p-4 sm:p-6 py-12 lg:py-20">
         
@@ -501,13 +450,15 @@ export default function TentangPage() {
                 <Button variant="ghost" onClick={() => setSelectedProfile(null)} className="text-slate-400 hover:text-white">
                   Tutup
                 </Button>
-                <Button 
-                  onClick={() => router.push(`/tentang/${selectedProfile.slug}`)} 
-                  className="bg-sky-600 hover:bg-sky-500 text-white font-medium gap-2"
-                >
-                  <span>Buka Halaman Penuh</span>
-                  <ExternalLink className="w-4 h-4" />
-                </Button>
+                {selectedProfile.type !== 'ASLAB' && (
+                  <Button 
+                    onClick={() => router.push(`/tentang/${selectedProfile.slug}`)} 
+                    className="bg-sky-600 hover:bg-sky-500 text-white font-medium gap-2"
+                  >
+                    <span>Buka Halaman Penuh</span>
+                    <ExternalLink className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
 
             </div>

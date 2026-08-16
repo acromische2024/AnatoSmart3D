@@ -23,6 +23,7 @@ import {
 import { toast } from 'sonner';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { BackgroundOrbs } from '@/components/anatomy/BackgroundOrbs';
+import { Navbar } from '@/components/anatomy/Navbar';
 
 type Preparation = {
   id: string;
@@ -349,38 +350,9 @@ function KanbanBoard() {
     <div className="min-h-screen flex flex-col bg-[#050511] text-white font-sans overflow-hidden">
       <BackgroundOrbs />
 
-      <header className="relative z-50 px-4 sm:px-6 lg:px-8 h-16 flex items-center border-b border-white/5 bg-[#050511]/80 backdrop-blur-xl">
-        <nav className="flex items-center gap-3 w-full max-w-[1800px] mx-auto">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-9 h-9 rounded-full text-slate-400 hover:text-white hover:bg-white/10"
-            onClick={() => router.push('/')}
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
-          <div className="flex items-center gap-2">
-            {mode === 'video' ? (
-              <Video className="w-5 h-5 text-rose-400" />
-            ) : mode === 'kuis' ? (
-              <BrainCircuit className="w-5 h-5 text-purple-400" />
-            ) : mode === 'preparat_only' ? (
-              <Microscope className="w-5 h-5 text-sky-400" />
-            ) : mode === 'materi' ? (
-              <FileText className="w-5 h-5 text-emerald-400" />
-            ) : (
-              <img src="/logo.png" alt="Logo" className="w-5 h-5 object-contain" />
-            )}
-            <span className="font-bold tracking-tight text-base sm:text-lg">
-              {mode === 'video' ? 'AnatoPlay' : mode === 'kuis' ? 'AnatoQuiz' : mode === 'preparat_only' ? 'Preparat 3D' : mode === 'materi' ? 'Materi Pendukung' : 'Semua Koleksi'}
-            </span>
-          </div>
-          <div className="ml-auto flex items-center gap-2 text-xs text-slate-500">
-            <LayoutGrid className="w-4 h-4" />
-            <span className="hidden sm:inline">{categories.length} Sistem</span>
-          </div>
-        </nav>
-      </header>
+      <Suspense fallback={<div className="h-16 bg-[#050511]" />}>
+        <Navbar />
+      </Suspense>
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden max-w-[1800px] mx-auto w-full">
         
