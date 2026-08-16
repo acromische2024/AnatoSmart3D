@@ -64,29 +64,27 @@ export function Navbar() {
         </div>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+        <nav className="hidden md:flex items-center gap-7 lg:gap-9 xl:gap-10">
           {navItems.map((item) => {
             const active = isLinkActive(item);
-            const Icon = item.icon;
             return (
               <button
                 key={item.label}
                 onClick={() => handleNavigate(item.href)}
                 className={cn(
-                  "px-3.5 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 cursor-pointer relative",
-                  active 
-                    ? "text-sky-300 bg-sky-500/10 border border-sky-500/20 shadow-[0_0_10px_rgba(14,165,233,0.15)] font-semibold" 
-                    : "text-slate-300 hover:text-white hover:bg-white/5 border border-transparent"
+                  "relative group py-1 text-sm lg:text-base font-medium transition-colors cursor-pointer flex items-center gap-2",
+                  active ? "text-white font-bold" : "text-slate-300 hover:text-white"
                 )}
               >
-                <Icon className={cn("w-4 h-4", active ? "text-sky-400" : "text-slate-400")} />
                 <span>{item.label}</span>
-                {active && (
-                  <motion.div 
-                    layoutId="activeTabIndicator" 
-                    className="absolute bottom-0 left-3 right-3 h-[2px] bg-sky-400 rounded-full" 
-                  />
-                )}
+                <span 
+                  className={cn(
+                    "absolute -bottom-1.5 left-0 h-[2px] bg-sky-400 rounded-full transition-all duration-300 ease-out",
+                    active 
+                      ? "w-full shadow-[0_0_10px_rgba(56,189,248,0.8)]" 
+                      : "w-0 group-hover:w-full"
+                  )} 
+                />
               </button>
             );
           })}
