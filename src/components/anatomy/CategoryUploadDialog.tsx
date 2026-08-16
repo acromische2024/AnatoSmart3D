@@ -22,7 +22,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { getSupabase } from '@/lib/supabaseClient';
+import { uploadFileViaApi } from '@/lib/uploadHelper';
 import { v4 as uuidv4 } from 'uuid';
 
 type SystemCategory = {
@@ -159,48 +159,19 @@ export function CategoryUploadDialog({ open, onOpenChange, onSuccess, initialDat
 
       // Upload image if selected
       if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${uuidv4()}.${fileExt}`;
-        const filePath = `images/${fileName}`;
-        
-        const supabase = getSupabase();
-        const { error: uploadError } = await supabase.storage
-          .from('anatomy-assets')
-          .upload(filePath, imageFile);
-          
-        if (uploadError) throw new Error(`Image upload failed: ${uploadError.message}`);
-        
-        const { data: { publicUrl } } = supabase.storage
-          .from('anatomy-assets')
-          .getPublicUrl(filePath);
-          
-        imageUrl = publicUrl;
+        imageUrl = await uploadFileViaApi(imageFile, 'images');
       }
 
       // Upload document files
       const newDocUrls: string[] = [];
       if (documentFiles.length > 0) {
-        const supabase = getSupabase();
         for (const file of documentFiles) {
-          const fileExt = file.name.split('.').pop();
-          const originalName = file.name;
-          const fileName = `${uuidv4()}_${originalName}`;
-          const filePath = `documents/${fileName}`;
-          
-          const { error: docUploadError } = await supabase.storage
-            .from('anatomy-assets')
-            .upload(filePath, file);
-            
-          if (docUploadError) {
-            toast.error(`Gagal upload ${originalName}: ${docUploadError.message}`);
-            continue;
+          try {
+            const publicUrl = await uploadFileViaApi(file, 'documents');
+            newDocUrls.push(publicUrl);
+          } catch (err: any) {
+            toast.error(`Gagal upload ${file.name}: ${err?.message}`);
           }
-          
-          const { data: { publicUrl } } = supabase.storage
-            .from('anatomy-assets')
-            .getPublicUrl(filePath);
-            
-          newDocUrls.push(publicUrl);
         }
       }
 

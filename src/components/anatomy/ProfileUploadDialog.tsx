@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { getSupabase } from '@/lib/supabaseClient';
+import { uploadFileViaApi } from '@/lib/uploadHelper';
 import { Profile } from './ProfileManager';
 import { v4 as uuidv4 } from 'uuid';
 import { Loader2 } from 'lucide-react';
@@ -85,18 +85,6 @@ export function ProfileUploadDialog({
     setImageFile(null);
   }, [initialData, open]);
 
-  const uploadFile = async (file: File) => {
-    const fileExt = file.name.split('.').pop();
-    const filePath = `images/profiles_${uuidv4()}.${fileExt}`;
-    const { error: uploadError } = await getSupabase().storage
-      .from('anatomy-assets')
-      .upload(filePath, file);
-
-    if (uploadError) throw uploadError;
-    const { data } = getSupabase().storage.from('anatomy-assets').getPublicUrl(filePath);
-    return data.publicUrl;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.role) {
@@ -108,7 +96,7 @@ export function ProfileUploadDialog({
     try {
       let finalImageUrl = initialData?.image || null;
       if (imageFile) {
-        finalImageUrl = await uploadFile(imageFile);
+        finalImageUrl = await uploadFileViaApi(imageFile, 'profiles');
       }
 
       // Format slug automatically and make it unique if creating new
