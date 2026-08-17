@@ -14,7 +14,6 @@ export function Navbar() {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const navItems = [
-    { label: 'Beranda', href: '/', icon: Home, key: 'home' },
     { label: 'Preparat', href: '/semua?mode=preparat_only', icon: Microscope, key: 'preparat' },
     { label: 'AnatoPlay', href: '/semua?mode=video', icon: Video, key: 'video' },
     { label: 'AnatoQuiz', href: '/semua?mode=kuis', icon: BrainCircuit, key: 'kuis' },
@@ -23,9 +22,6 @@ export function Navbar() {
   ];
 
   const isLinkActive = (item: typeof navItems[0]) => {
-    if (item.href === '/') {
-      return pathname === '/';
-    }
     if (item.href === '/tentang') {
       return pathname.startsWith('/tentang');
     }
@@ -120,43 +116,45 @@ export function Navbar() {
       <div
         ref={menuRef}
         className={cn(
-          "md:hidden border-t border-white/10 bg-[#08081a]/98 backdrop-blur-lg",
+          "md:hidden bg-[#08081a]/98 backdrop-blur-lg transition-colors duration-300",
           "mobile-nav-drawer",
-          mobileMenuOpen ? "mobile-nav-open" : "mobile-nav-closed"
+          mobileMenuOpen ? "mobile-nav-open border-t border-white/10" : "mobile-nav-closed border-t border-transparent"
         )}
       >
-        <div className="p-4 space-y-1.5 max-w-md mx-auto">
-          {navItems.map((item, index) => {
-            const active = isLinkActive(item);
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.label}
-                onClick={() => handleNavigate(item.href)}
-                className={cn(
-                  "w-full text-left px-4 py-3.5 rounded-2xl text-sm font-medium flex items-center justify-between",
-                  "mobile-nav-item",
-                  active 
-                    ? "bg-sky-500/15 text-sky-200 border border-sky-500/30 font-bold" 
-                    : "text-slate-300 hover:text-white hover:bg-white/5 border border-transparent active:bg-white/10"
-                )}
-                style={{
-                  transitionDelay: mobileMenuOpen ? `${index * 30}ms` : '0ms',
-                } as React.CSSProperties}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={cn(
-                    "w-8 h-8 rounded-xl flex items-center justify-center transition-colors",
-                    active ? "bg-sky-500/20 text-sky-400" : "bg-white/5 text-slate-400"
-                  )}>
-                    <Icon className="w-4 h-4" />
+        <div className="min-h-0">
+          <div className="p-4 space-y-1.5">
+            {navItems.map((item, index) => {
+              const active = isLinkActive(item);
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.label}
+                  onClick={() => handleNavigate(item.href)}
+                  className={cn(
+                    "w-full text-left px-4 py-3.5 rounded-2xl text-sm font-medium flex items-center justify-between",
+                    "mobile-nav-item",
+                    active 
+                      ? "bg-sky-500/15 text-sky-200 border border-sky-500/30 font-bold" 
+                      : "text-slate-300 hover:text-white hover:bg-white/5 border border-transparent active:bg-white/10"
+                  )}
+                  style={{
+                    transitionDelay: mobileMenuOpen ? `${index * 30}ms` : '0ms',
+                  } as React.CSSProperties}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "w-8 h-8 rounded-xl flex items-center justify-center transition-colors",
+                      active ? "bg-sky-500/20 text-sky-400" : "bg-white/5 text-slate-400"
+                    )}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <span className="text-base">{item.label}</span>
                   </div>
-                  <span className="text-base">{item.label}</span>
-                </div>
-                {active && <div className="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]" />}
-              </button>
-            );
-          })}
+                  {active && <div className="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]" />}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </header>
