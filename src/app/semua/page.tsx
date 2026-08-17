@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, ViewTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { 
@@ -354,6 +354,7 @@ function KanbanBoard() {
         <Navbar />
       </Suspense>
 
+      <ViewTransition name="page-content">
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden max-w-[1800px] mx-auto w-full">
         
         <div className="lg:hidden p-4 border-b border-white/5 bg-[#050511] z-40 shrink-0">
@@ -735,6 +736,7 @@ function KanbanBoard() {
           </AnimatePresence>
         </main>
       </div>
+      </ViewTransition>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use, useRef, useMemo } from 'react';
+import { useState, useEffect, use, useRef, useMemo, ViewTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { BackgroundOrbs } from '@/components/anatomy/BackgroundOrbs';
@@ -166,6 +166,7 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
         </div>
       </header>
 
+      <ViewTransition name="page-content">
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar (Left) */}
         {preparationsList.length > 0 && (
@@ -379,6 +380,7 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
           </div>
         </div>
       </div>
+      </ViewTransition>
     </div>
   );
 }

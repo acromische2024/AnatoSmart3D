@@ -1,4 +1,5 @@
 'use client';
+import { ViewTransition } from 'react';
 
 import { useState, useEffect, Suspense } from 'react';
 import { Navbar } from '@/components/anatomy/Navbar';
@@ -134,6 +135,7 @@ export default function TentangPage() {
         <Navbar />
       </Suspense>
 
+      <ViewTransition name="page-content">
       <main className="flex-1 relative z-10 flex flex-col items-center p-4 sm:p-6 py-12 lg:py-20">
         
         <div className="w-full max-w-7xl mx-auto mb-16 flex flex-col items-center text-center">
@@ -283,6 +285,7 @@ export default function TentangPage() {
           </>
         )}
       </main>
+      </ViewTransition>
 
       {/* Profile Detail Modal */}
       {selectedProfile && (

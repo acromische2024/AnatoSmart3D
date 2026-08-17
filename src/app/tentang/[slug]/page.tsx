@@ -1,3 +1,4 @@
+import { ViewTransition } from 'react';
 import { db as prisma } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { BackgroundOrbs } from '@/components/anatomy/BackgroundOrbs';
@@ -37,6 +38,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ slug: 
         </Link>
       </header>
 
+      <ViewTransition name="page-content">
       <main className="relative z-10 max-w-5xl mx-auto p-4 sm:p-6 py-10 pb-24">
         
         {/* Profile Header */}
@@ -282,6 +284,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
       </main>
+      </ViewTransition>
     </div>
   );
 }

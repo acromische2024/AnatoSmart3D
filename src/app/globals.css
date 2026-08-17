@@ -200,3 +200,136 @@
     scrollbar-width: none;
   }
 }
+
+/* ═══════════════════════════════════════════════════
+   Mobile Navigation Drawer — GPU-accelerated 60fps
+   Uses transform + opacity (composited) instead of
+   height (layout-triggering). No JS animation lib.
+   ═══════════════════════════════════════════════════ */
+.mobile-nav-drawer {
+  display: grid;
+  /* grid-template-rows trick for smooth height animation without JS */
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 280ms cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 200ms ease-out;
+  will-change: grid-template-rows, opacity;
+}
+.mobile-nav-drawer > * {
+  overflow: hidden;
+}
+.mobile-nav-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.mobile-nav-closed {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Staggered item entrance */
+.mobile-nav-item {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity 220ms ease-out,
+    transform 220ms cubic-bezier(0.32, 0.72, 0, 1),
+    background-color 150ms ease,
+    border-color 150ms ease;
+  will-change: opacity, transform;
+}
+.mobile-nav-open .mobile-nav-item {
+  opacity: 1;
+  transform: translateY(0);
+}
+.mobile-nav-closed .mobile-nav-item {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition-delay: 0ms !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   View Transitions — Smooth page crossfades
+   Uses the native View Transitions API in Next.js 16
+   ═══════════════════════════════════════════════════ */
+
+/* Keep page interactive during transition */
+::view-transition {
+  pointer-events: none;
+}
+
+/* Anchor the header so it doesn't animate during transitions */
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+/* Page crossfade: old content fades out fast, new fades in gently */
+::view-transition-old(page-content) {
+  animation: vt-fade-out 120ms ease-in both;
+}
+::view-transition-new(page-content) {
+  animation: vt-fade-in 250ms ease-out 80ms both;
+}
+
+/* Directional slide transitions */
+::view-transition-old(.nav-forward) {
+  --vt-slide-offset: -40px;
+  animation:
+    120ms ease-in both vt-fade-out,
+    300ms cubic-bezier(0.32, 0.72, 0, 1) both vt-slide reverse;
+}
+::view-transition-new(.nav-forward) {
+  --vt-slide-offset: 40px;
+  animation:
+    200ms ease-out 100ms both vt-fade-in,
+    300ms cubic-bezier(0.32, 0.72, 0, 1) both vt-slide;
+}
+::view-transition-old(.nav-back) {
+  --vt-slide-offset: 40px;
+  animation:
+    120ms ease-in both vt-fade-out,
+    300ms cubic-bezier(0.32, 0.72, 0, 1) both vt-slide reverse;
+}
+::view-transition-new(.nav-back) {
+  --vt-slide-offset: -40px;
+  animation:
+    200ms ease-out 100ms both vt-fade-in,
+    300ms cubic-bezier(0.32, 0.72, 0, 1) both vt-slide;
+}
+
+@keyframes vt-fade-out {
+  from { opacity: 1; filter: blur(0); }
+  to   { opacity: 0; filter: blur(2px); }
+}
+@keyframes vt-fade-in {
+  from { opacity: 0; filter: blur(2px); }
+  to   { opacity: 1; filter: blur(0); }
+}
+@keyframes vt-slide {
+  from { translate: var(--vt-slide-offset); }
+  to   { translate: 0; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-drawer,
+  .mobile-nav-item {
+    transition-duration: 0.01ms !important;
+  }
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, ViewTransition } from 'react';
 import { Navbar } from '@/components/anatomy/Navbar';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -470,6 +470,7 @@ export default function SystemDetailPage() {
         <Navbar />
       </Suspense>
 
+      <ViewTransition name="page-content">
       {/* Hero Section — Full width */}
       <section className="relative z-10 px-4 sm:px-6 lg:px-10 mt-2 sm:mt-4">
         <motion.div 
@@ -638,6 +639,7 @@ export default function SystemDetailPage() {
 
         </div>
       </div>
+      </ViewTransition>
     </motion.div>
   );
 }

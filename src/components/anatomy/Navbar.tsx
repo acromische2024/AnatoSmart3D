@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useRef, useEffect } from 'react';
 import { Menu, X, Home, Microscope, Video, BrainCircuit, FileText, Users } from 'lucide-react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -12,6 +11,7 @@ export function Navbar() {
   const searchParams = useSearchParams();
   const mode = searchParams?.get('mode');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const navItems = [
     { label: 'Beranda', href: '/', icon: Home, key: 'home' },
@@ -36,15 +36,20 @@ export function Navbar() {
     return false;
   };
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname, mode]);
+
   const handleNavigate = (href: string) => {
     router.push(href);
-    // Close mobile menu after a brief delay so navigation isn't interrupted
-    // by the re-render caused by the state change + Suspense boundary
-    setTimeout(() => setMobileMenuOpen(false), 100);
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#050511]/90 backdrop-blur-xl border-b border-white/10 transition-all">
+    <header
+      className="sticky top-0 z-50 w-full bg-[#050511]/90 backdrop-blur-xl border-b border-white/10"
+      style={{ viewTransitionName: 'site-header' } as React.CSSProperties}
+    >
       <div className="max-w-7xl xl:max-w-[1400px] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 h-16 flex items-center justify-between">
         
         {/* Brand / Logo */}
@@ -98,52 +103,62 @@ export function Navbar() {
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle Navigation Menu"
         >
-          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          <div className="relative w-5 h-5">
+            <Menu className={cn(
+              "w-5 h-5 absolute inset-0 transition-all duration-300",
+              mobileMenuOpen ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"
+            )} />
+            <X className={cn(
+              "w-5 h-5 absolute inset-0 transition-all duration-300",
+              mobileMenuOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"
+            )} />
+          </div>
         </button>
       </div>
 
-      {/* Mobile Navigation Dropdown Drawer */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="md:hidden overflow-hidden border-t border-white/10 bg-[#08081a]/95 backdrop-blur-2xl"
-          >
-            <div className="p-4 space-y-1.5 max-w-md mx-auto">
-              {navItems.map((item) => {
-                const active = isLinkActive(item);
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.label}
-                    onClick={() => handleNavigate(item.href)}
-                    className={cn(
-                      "w-full text-left px-4 py-3.5 rounded-2xl text-sm font-medium transition-all flex items-center justify-between active:scale-[0.98]",
-                      active 
-                        ? "bg-sky-500/15 text-sky-200 border border-sky-500/30 font-bold" 
-                        : "text-slate-300 hover:text-white hover:bg-white/5 border border-transparent"
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={cn(
-                        "w-8 h-8 rounded-xl flex items-center justify-center",
-                        active ? "bg-sky-500/20 text-sky-400" : "bg-white/5 text-slate-400"
-                      )}>
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <span className="text-base">{item.label}</span>
-                    </div>
-                    {active && <div className="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]" />}
-                  </button>
-                );
-              })}
-            </div>
-          </motion.div>
+      {/* Mobile Navigation Dropdown — CSS-only animation for 60fps */}
+      <div
+        ref={menuRef}
+        className={cn(
+          "md:hidden border-t border-white/10 bg-[#08081a]/98 backdrop-blur-lg",
+          "mobile-nav-drawer",
+          mobileMenuOpen ? "mobile-nav-open" : "mobile-nav-closed"
         )}
-      </AnimatePresence>
+      >
+        <div className="p-4 space-y-1.5 max-w-md mx-auto">
+          {navItems.map((item, index) => {
+            const active = isLinkActive(item);
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.label}
+                onClick={() => handleNavigate(item.href)}
+                className={cn(
+                  "w-full text-left px-4 py-3.5 rounded-2xl text-sm font-medium flex items-center justify-between",
+                  "mobile-nav-item",
+                  active 
+                    ? "bg-sky-500/15 text-sky-200 border border-sky-500/30 font-bold" 
+                    : "text-slate-300 hover:text-white hover:bg-white/5 border border-transparent active:bg-white/10"
+                )}
+                style={{
+                  transitionDelay: mobileMenuOpen ? `${index * 30}ms` : '0ms',
+                } as React.CSSProperties}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    "w-8 h-8 rounded-xl flex items-center justify-center transition-colors",
+                    active ? "bg-sky-500/20 text-sky-400" : "bg-white/5 text-slate-400"
+                  )}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <span className="text-base">{item.label}</span>
+                </div>
+                {active && <div className="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]" />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </header>
   );
 }
