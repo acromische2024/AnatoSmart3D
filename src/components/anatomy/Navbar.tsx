@@ -37,8 +37,10 @@ export function Navbar() {
   };
 
   const handleNavigate = (href: string) => {
-    setMobileMenuOpen(false);
     router.push(href);
+    // Close mobile menu after a brief delay so navigation isn't interrupted
+    // by the re-render caused by the state change + Suspense boundary
+    setTimeout(() => setMobileMenuOpen(false), 100);
   };
 
   return (
