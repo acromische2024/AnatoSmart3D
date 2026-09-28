@@ -17,24 +17,11 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BackgroundOrbs } from '@/components/anatomy/BackgroundOrbs';
-import { PreparationCard } from '@/components/anatomy/PreparationCard';
+import { PreparationCard, type Preparation } from '@/components/anatomy/PreparationCard';
 import { UploadDialog } from '@/components/anatomy/UploadDialog';
 import { CategoryUploadDialog } from '@/components/anatomy/CategoryUploadDialog';
 import { ProfileManager } from '@/components/anatomy/ProfileManager';
-
-type Preparation = {
-  id: string;
-  title: string;
-  description: string | null;
-  category: string | null;
-  imageUrl: string | null;
-  modelUrl: string | null;
-  thumbnailUrl: string | null;
-  youtubeUrl: string | null;
-  documentUrl: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
+import { QuizManager } from '@/components/anatomy/QuizManager';
 
 type SystemCategory = {
   id: string;
@@ -42,6 +29,9 @@ type SystemCategory = {
   slug: string;
   description: string | null;
   imageUrl: string | null;
+  youtubeUrl: string | null;
+  extraVideoUrl?: string | null;
+  documentUrl?: string | null;
   order: number;
 };
 
@@ -224,7 +214,7 @@ export default function EditorDashboard() {
                     <Users className="w-4 h-4 mr-2" />
                     Manajemen Profil
                   </TabsTrigger>
-                  <TabsTrigger value="kuis" onClick={() => router.push('/davey2kpubg/kuis')} className="data-[state=active]:bg-rose-500/20 data-[state=active]:text-rose-300">
+                  <TabsTrigger value="kuis" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">
                     <BrainCircuit className="w-4 h-4 mr-2" />
                     AnatoQuiz
                   </TabsTrigger>
@@ -373,6 +363,11 @@ export default function EditorDashboard() {
               {/* Tab: Profil */}
               <TabsContent value="profil" className="mt-0">
                 <ProfileManager />
+              </TabsContent>
+
+              {/* Tab: AnatoQuiz */}
+              <TabsContent value="kuis" className="mt-0">
+                <QuizManager />
               </TabsContent>
             </Tabs>
           </div>

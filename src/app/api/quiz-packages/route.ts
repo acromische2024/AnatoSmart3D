@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     });
     
     // Process questions mapping format
-    const results = [];
+    const results: any[] = [];
     for (const item of questions) {
       // Multiple Choice
       if (item.pertanyaan && item.pilihan) {
@@ -99,6 +99,60 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, package: quizPackage, count: results.length });
   } catch (error) {
     console.error('Error creating quiz package:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    let id = searchParams.get('id');
+
+    if (!id) {
+      try {
+        const body = await request.json();
+        id = body?.id;
+      } catch {
+        // body not provided or invalid json
+      }
+    }
+
+    if (!id) {
+      return NextResponse.json({ error: 'Package id is required' }, { status: 400 });
+    }
+
+    const pkg = await db.quizPackage.findUnique({
+      where: { id },
+    });
+
+    if (!pkg) {
+      return NextResponse.json({ error: 'Paket kuis tidak ditemukan' }, { status: 404 });
+    }
+
+    await db.$transaction(async (tx) => {
+      const questions = await tx.quizQuestion.findMany({
+        where: { packageId: id },
+        select: { id: true },
+      });
+      const questionIds = questions.map((q) => q.id);
+
+      if (questionIds.length > 0) {
+        await tx.quizOption.deleteMany({
+          where: { questionId: { in: questionIds } },
+        });
+        await tx.quizQuestion.deleteMany({
+          where: { id: { in: questionIds } },
+        });
+      }
+
+      await tx.quizPackage.delete({
+        where: { id },
+      });
+    });
+
+    return NextResponse.json({ success: true, message: 'Paket kuis berhasil dihapus' });
+  } catch (error) {
+    console.error('Error deleting quiz package:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -5,7 +5,7 @@ import { Eye, Box, Trash2, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
-type Preparation = {
+export type Preparation = {
   id: string;
   title: string;
   description: string | null;
@@ -13,6 +13,8 @@ type Preparation = {
   imageUrl: string | null;
   modelUrl: string | null;
   thumbnailUrl: string | null;
+  youtubeUrl: string | null;
+  documentUrl: string | null;
   createdAt: string;
   updatedAt: string;
 };

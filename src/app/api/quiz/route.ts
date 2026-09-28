@@ -41,3 +41,45 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    let id = searchParams.get('id');
+
+    if (!id) {
+      try {
+        const body = await request.json();
+        id = body?.id;
+      } catch {
+        // body not provided or invalid json
+      }
+    }
+
+    if (!id) {
+      return NextResponse.json({ error: 'Question id is required' }, { status: 400 });
+    }
+
+    const question = await db.quizQuestion.findUnique({
+      where: { id },
+    });
+
+    if (!question) {
+      return NextResponse.json({ error: 'Soal tidak ditemukan' }, { status: 404 });
+    }
+
+    await db.$transaction(async (tx) => {
+      await tx.quizOption.deleteMany({
+        where: { questionId: id },
+      });
+      await tx.quizQuestion.delete({
+        where: { id },
+      });
+    });
+
+    return NextResponse.json({ success: true, message: 'Soal berhasil dihapus' });
+  } catch (error) {
+    console.error('Error deleting quiz question:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
