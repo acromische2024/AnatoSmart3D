@@ -175,6 +175,14 @@ export default function QuizEditorPage() {
             if (Array.isArray(val)) dataToImport.push(...val);
           });
         }
+
+        // If it's a single question/card object, wrap it into an array
+        if (
+          dataToImport.length === 0 &&
+          (parsedData.pertanyaan || parsedData.question || parsedData.soal || parsedData.clue || parsedData.hints)
+        ) {
+          dataToImport = [parsedData];
+        }
       }
 
       if (!Array.isArray(dataToImport) || dataToImport.length === 0) {

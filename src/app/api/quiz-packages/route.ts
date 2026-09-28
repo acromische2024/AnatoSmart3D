@@ -65,42 +65,108 @@ export async function POST(request: Request) {
         item.foto ||
         null;
 
+      // Extract question text and choices
+      const questionText = item.pertanyaan || item.question || item.soal;
+      const choices = item.pilihan || item.options || item.choices;
+
       // Multiple Choice
-      if (item.pertanyaan && item.pilihan) {
+      if (questionText && Array.isArray(choices) && choices.length > 0) {
         const questionData = await db.quizQuestion.create({
           data: {
             packageId: quizPackage.id,
             type: "MULTIPLE_CHOICE",
-            question: item.pertanyaan,
+            question: questionText,
             imageUrl: imageCandidate,
-            explanation: item.pembahasan || item.explanation || null,
+            explanation: item.pembahasan || item.explanation || item.rasionalisasi || null,
           }
         });
-        
-        for (const pil of item.pilihan) {
-          const isCorrect = pil === item.jawaban;
-          const matchingElimination = item.eliminasi?.find((e: any) => e.opsi === pil);
-          
+
+        const targetAnswer = (
+          item.jawaban ||
+          item.jawaban_benar ||
+          item.jawabanBenar ||
+          item.correctAnswer ||
+          item.answer ||
+          ''
+        ).toString().trim();
+
+        const targetKey = (
+          item.kunci ||
+          item.kunci_jawaban ||
+          item.kunciJawaban ||
+          ''
+        ).toString().trim().toUpperCase();
+
+        for (let idx = 0; idx < choices.length; idx++) {
+          const rawPil = choices[idx];
+          const pilText = (typeof rawPil === 'object' && rawPil !== null ? rawPil.text : rawPil).toString();
+          const optionLetter = String.fromCharCode(65 + idx); // "A", "B", "C", ...
+
+          // Check if option is correct
+          let isCorrect = false;
+          if (typeof rawPil === 'object' && rawPil !== null && typeof rawPil.isCorrect === 'boolean') {
+            isCorrect = rawPil.isCorrect;
+          } else {
+            // Clean text comparison (strip leading "A. " or "A) ")
+            const cleanPil = pilText.replace(/^[A-E][.)]\s*/i, '').trim().toLowerCase();
+            const cleanTarget = targetAnswer.replace(/^[A-E][.)]\s*/i, '').trim().toLowerCase();
+
+            const isTextMatch = Boolean(targetAnswer && (pilText.trim().toLowerCase() === targetAnswer.toLowerCase() || cleanPil === cleanTarget));
+            const isKeyMatch = Boolean(targetKey && targetKey === optionLetter);
+
+            isCorrect = isTextMatch || isKeyMatch;
+          }
+
+          // Extract option elimination explanation if available
+          let optExplanation: string | null = null;
+          if (typeof rawPil === 'object' && rawPil !== null && rawPil.explanation) {
+            optExplanation = rawPil.explanation;
+          } else if (item.eliminasi_opsi && typeof item.eliminasi_opsi === 'object') {
+            optExplanation = item.eliminasi_opsi[optionLetter] || item.eliminasi_opsi[optionLetter.toLowerCase()] || item.eliminasi_opsi[pilText] || null;
+          } else if (item.eliminasiOpsi && typeof item.eliminasiOpsi === 'object') {
+            optExplanation = item.eliminasiOpsi[optionLetter] || item.eliminasiOpsi[optionLetter.toLowerCase()] || item.eliminasiOpsi[pilText] || null;
+          } else if (Array.isArray(item.eliminasi)) {
+            const matching = item.eliminasi.find((e: any) =>
+              e.opsi === pilText ||
+              e.opsi === optionLetter ||
+              e.opsi?.toString().trim().toUpperCase() === optionLetter
+            );
+            optExplanation = matching?.alasan || matching?.penjelasan || null;
+          }
+
           await db.quizOption.create({
             data: {
               questionId: questionData.id,
-              text: pil,
+              text: pilText,
               isCorrect: isCorrect,
-              explanation: matchingElimination ? matchingElimination.alasan : null
+              explanation: optExplanation,
             }
           });
         }
         results.push(questionData);
       }
       // Flashcard
-      else if (item.clue && item.answer) {
+      else if ((item.clue || item.hints || item.petunjuk) && (item.answer || item.jawaban || item.jawaban_benar)) {
+        const answer = (item.answer || item.jawaban || item.jawaban_benar).toString();
+        let cluesArray: string[] = [];
+
+        if (Array.isArray(item.hints)) {
+          cluesArray = item.hints;
+        } else if (Array.isArray(item.clue)) {
+          cluesArray = item.clue;
+        } else if (typeof item.clue === 'string') {
+          cluesArray = [item.clue];
+        } else if (typeof item.petunjuk === 'string') {
+          cluesArray = [item.petunjuk];
+        }
+
         const flashcardData = await db.quizQuestion.create({
           data: {
             packageId: quizPackage.id,
             type: "FLASHCARD",
-            question: JSON.stringify(item.clue), // Store hints as JSON array
+            question: JSON.stringify(cluesArray.length > 0 ? cluesArray : [item.clue || '']),
             imageUrl: imageCandidate,
-            correctAnswer: item.answer,
+            correctAnswer: answer,
             explanation: item.explanation || item.pembahasan || null,
           }
         });
