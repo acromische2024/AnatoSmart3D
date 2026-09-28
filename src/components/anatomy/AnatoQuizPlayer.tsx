@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { BrainCircuit, CheckCircle2, XCircle, ArrowRight, RotateCcw, LayoutGrid } from 'lucide-react';
+import { BrainCircuit, CheckCircle2, XCircle, ArrowRight, RotateCcw, LayoutGrid, Lightbulb } from 'lucide-react';
 import { toast } from 'sonner';
+import { QuizImagePreview, extractImagesAndCleanText } from './QuizImagePreview';
 
 type QuizOption = {
   id: string;
@@ -255,6 +256,16 @@ export function AnatoQuizPlayer({ packageId, categorySlug, questionLimit }: { pa
     return <div dangerouslySetInnerHTML={{ __html: htmlString }} />;
   };
 
+  const parseClues = (raw: string) => {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+      return [raw];
+    } catch {
+      return [raw];
+    }
+  };
+
   return (
     <div className="bg-slate-900/50 p-6 sm:p-8 rounded-3xl border border-white/5 relative overflow-hidden flex flex-col md:flex-row gap-8">
       
@@ -340,14 +351,70 @@ export function AnatoQuizPlayer({ packageId, categorySlug, questionLimit }: { pa
             transition={{ duration: 0.3 }}
             className="space-y-8"
           >
-            {/* Question */}
-            <div className="text-lg sm:text-xl font-medium leading-relaxed text-slate-200">
-              {renderHTML(currentQuestion.question)}
-            </div>
-            
-            {currentQuestion.imageUrl && (
-              <img src={currentQuestion.imageUrl} alt="Ilustrasi Soal" className="rounded-xl max-h-64 object-contain mx-auto" />
-            )}
+            {/* Question Text & Images */}
+            {(() => {
+              if (currentQuestion.type === 'FLASHCARD') {
+                const clues = parseClues(currentQuestion.question);
+                return (
+                  <div className="space-y-4">
+                    {currentQuestion.imageUrl && (
+                      <QuizImagePreview
+                        src={currentQuestion.imageUrl}
+                        alt={`Ilustrasi Soal ${currentIndex + 1}`}
+                      />
+                    )}
+                    <div className="space-y-2">
+                      <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <Lightbulb className="w-4 h-4" /> Petunjuk / Clue:
+                      </span>
+                      <div className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-5 space-y-3">
+                        {clues.map((clue: string, cIdx: number) => {
+                          const { cleanText: clueText, images: clueImages } = extractImagesAndCleanText(clue);
+                          return (
+                            <div key={cIdx} className="space-y-2">
+                              {clueText && (
+                                <div className="flex items-start gap-2.5 text-slate-200 text-base sm:text-lg leading-relaxed">
+                                  <span className="text-amber-400 font-bold shrink-0 mt-0.5">•</span>
+                                  <div className="flex-1">{renderHTML(clueText)}</div>
+                                </div>
+                              )}
+                              {clueImages.map((imgUrl, imgIdx) => (
+                                <QuizImagePreview
+                                  key={imgIdx}
+                                  src={imgUrl}
+                                  alt={`Petunjuk Gambar ${cIdx + 1}`}
+                                />
+                              ))}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              // Multiple Choice
+              const { cleanText: questionText, images: questionImages } = extractImagesAndCleanText(
+                currentQuestion.question,
+                currentQuestion.imageUrl
+              );
+
+              return (
+                <div className="space-y-4">
+                  <div className="text-lg sm:text-xl font-medium leading-relaxed text-slate-200">
+                    {renderHTML(questionText)}
+                  </div>
+                  {questionImages.map((imgUrl, i) => (
+                    <QuizImagePreview
+                      key={i}
+                      src={imgUrl}
+                      alt={`Ilustrasi Soal ${currentIndex + 1}`}
+                    />
+                  ))}
+                </div>
+              );
+            })()}
 
             {/* Type: Multiple Choice */}
             {currentQuestion.type === 'MULTIPLE_CHOICE' && (
@@ -366,6 +433,8 @@ export function AnatoQuizPlayer({ packageId, categorySlug, questionLimit }: { pa
                     }
                   }
 
+                  const { cleanText: optText, images: optImages } = extractImagesAndCleanText(opt.text);
+
                   return (
                     <button
                       key={opt.id}
@@ -380,7 +449,12 @@ export function AnatoQuizPlayer({ packageId, categorySlug, questionLimit }: { pa
                         {(isAnswered && !isSelected && !opt.isCorrect) && <div className="w-5 h-5" />}
                       </div>
                       <div className="flex-1 leading-relaxed">
-                        {renderHTML(opt.text)}
+                        <div className="space-y-2">
+                          <div>{renderHTML(optText)}</div>
+                          {optImages.map((img, i) => (
+                            <QuizImagePreview key={i} src={img} maxHeight="max-h-48" alt={`Opsi ${optText}`} />
+                          ))}
+                        </div>
                         {/* Elimination Explanation */}
                         <AnimatePresence>
                           {isAnswered && opt.explanation && (
@@ -389,7 +463,17 @@ export function AnatoQuizPlayer({ packageId, categorySlug, questionLimit }: { pa
                               animate={{ opacity: 1, height: 'auto' }}
                               className={`mt-3 text-sm p-3 rounded-lg ${opt.isCorrect ? 'bg-green-500/10 text-green-200' : 'bg-red-500/10 text-red-200'}`}
                             >
-                              {renderHTML(opt.explanation)}
+                              {(() => {
+                                const { cleanText: expText, images: expImages } = extractImagesAndCleanText(opt.explanation);
+                                return (
+                                  <div className="space-y-2">
+                                    <div>{renderHTML(expText)}</div>
+                                    {expImages.map((img, i) => (
+                                      <QuizImagePreview key={i} src={img} maxHeight="max-h-48" alt="Penjelasan" />
+                                    ))}
+                                  </div>
+                                );
+                              })()}
                             </motion.div>
                           )}
                         </AnimatePresence>
@@ -439,7 +523,17 @@ export function AnatoQuizPlayer({ packageId, categorySlug, questionLimit }: { pa
                     {currentQuestion.explanation && (
                       <div className="text-slate-300 text-sm prose prose-invert max-w-none mt-2">
                         <strong className="text-white block mb-1">Pembahasan:</strong>
-                        {renderHTML(currentQuestion.explanation)}
+                        {(() => {
+                          const { cleanText: expText, images: expImages } = extractImagesAndCleanText(currentQuestion.explanation);
+                          return (
+                            <div className="space-y-2">
+                              <div>{renderHTML(expText)}</div>
+                              {expImages.map((img, i) => (
+                                <QuizImagePreview key={i} src={img} maxHeight="max-h-60" alt="Gambar Pembahasan" />
+                              ))}
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
                   </div>

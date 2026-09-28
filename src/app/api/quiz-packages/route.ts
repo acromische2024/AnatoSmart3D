@@ -54,6 +54,17 @@ export async function POST(request: Request) {
     // Process questions mapping format
     const results: any[] = [];
     for (const item of questions) {
+      // Find image from multiple possible keys
+      const imageCandidate =
+        item.imageUrl ||
+        item.image ||
+        item.gambar ||
+        item.urlGambar ||
+        item.linkGambar ||
+        item.link_gambar ||
+        item.foto ||
+        null;
+
       // Multiple Choice
       if (item.pertanyaan && item.pilihan) {
         const questionData = await db.quizQuestion.create({
@@ -61,8 +72,8 @@ export async function POST(request: Request) {
             packageId: quizPackage.id,
             type: "MULTIPLE_CHOICE",
             question: item.pertanyaan,
-            imageUrl: item.imageUrl || null,
-            explanation: item.pembahasan || null,
+            imageUrl: imageCandidate,
+            explanation: item.pembahasan || item.explanation || null,
           }
         });
         
@@ -88,8 +99,9 @@ export async function POST(request: Request) {
             packageId: quizPackage.id,
             type: "FLASHCARD",
             question: JSON.stringify(item.clue), // Store hints as JSON array
+            imageUrl: imageCandidate,
             correctAnswer: item.answer,
-            explanation: item.explanation || null,
+            explanation: item.explanation || item.pembahasan || null,
           }
         });
         results.push(flashcardData);

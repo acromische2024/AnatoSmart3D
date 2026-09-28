@@ -45,6 +45,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { QuizImagePreview, extractImagesAndCleanText } from './QuizImagePreview';
 
 export type QuizPackage = {
   id: string;
@@ -505,17 +506,34 @@ export function QuizManager() {
                   {/* Question Content */}
                   {q.type === 'FLASHCARD' ? (
                     <div className="space-y-2">
+                      {q.imageUrl && (
+                        <QuizImagePreview
+                          src={q.imageUrl}
+                          alt={`Ilustrasi Soal ${idx + 1}`}
+                          maxHeight="max-h-56"
+                        />
+                      )}
                       <div className="text-xs text-slate-400 font-semibold flex items-center gap-1.5">
                         <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
                         Petunjuk / Clue:
                       </div>
-                      <div className="bg-white/5 p-3 rounded-lg space-y-1.5 text-xs text-slate-200">
-                        {parseClues(q.question).map((clue: string, cIdx: number) => (
-                          <div key={cIdx} className="flex gap-2">
-                            <span className="text-amber-400 font-bold">•</span>
-                            <span>{clue}</span>
-                          </div>
-                        ))}
+                      <div className="bg-white/5 p-3 rounded-lg space-y-2 text-xs text-slate-200">
+                        {parseClues(q.question).map((clue: string, cIdx: number) => {
+                          const { cleanText: clueText, images: clueImages } = extractImagesAndCleanText(clue);
+                          return (
+                            <div key={cIdx} className="space-y-1.5">
+                              {clueText && (
+                                <div className="flex gap-2">
+                                  <span className="text-amber-400 font-bold">•</span>
+                                  <span>{clueText}</span>
+                                </div>
+                              )}
+                              {clueImages.map((img, i) => (
+                                <QuizImagePreview key={i} src={img} maxHeight="max-h-48" />
+                              ))}
+                            </div>
+                          );
+                        })}
                       </div>
 
                       <div className="text-xs bg-emerald-500/15 border border-emerald-500/30 p-2.5 rounded-lg text-emerald-300">
@@ -530,36 +548,52 @@ export function QuizManager() {
                     </div>
                   ) : (
                     <div className="space-y-2.5">
-                      <p className="text-sm font-medium text-slate-100">{q.question}</p>
+                      {(() => {
+                        const { cleanText, images } = extractImagesAndCleanText(q.question, q.imageUrl);
+                        return (
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium text-slate-100">{cleanText}</p>
+                            {images.map((img, i) => (
+                              <QuizImagePreview key={i} src={img} maxHeight="max-h-56" />
+                            ))}
+                          </div>
+                        );
+                      })()}
 
                       {/* Options */}
                       <div className="grid grid-cols-1 gap-1.5 pt-1">
-                        {q.options.map((opt) => (
-                          <div
-                            key={opt.id}
-                            className={`p-2 rounded-lg text-xs flex items-start gap-2 ${
-                              opt.isCorrect
-                                ? 'bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 font-semibold'
-                                : 'bg-white/5 text-slate-300'
-                            }`}
-                          >
-                            <span className="mt-0.5">
-                              {opt.isCorrect ? (
-                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                              ) : (
-                                <HelpCircle className="w-3.5 h-3.5 text-slate-600 shrink-0" />
-                              )}
-                            </span>
-                            <div className="flex-1">
-                              <span>{opt.text}</span>
-                              {opt.explanation && !opt.isCorrect && (
-                                <span className="block text-[11px] text-slate-400 font-normal mt-0.5 italic">
-                                  Eliminasi: {opt.explanation}
-                                </span>
-                              )}
+                        {q.options?.map((opt) => {
+                          const { cleanText: optText, images: optImages } = extractImagesAndCleanText(opt.text);
+                          return (
+                            <div
+                              key={opt.id}
+                              className={`p-2 rounded-lg text-xs flex items-start gap-2 ${
+                                opt.isCorrect
+                                  ? 'bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 font-semibold'
+                                  : 'bg-white/5 text-slate-300'
+                              }`}
+                            >
+                              <span className="mt-0.5">
+                                {opt.isCorrect ? (
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                ) : (
+                                  <HelpCircle className="w-3.5 h-3.5 text-slate-600 shrink-0" />
+                                )}
+                              </span>
+                              <div className="flex-1 space-y-1">
+                                <div>{optText}</div>
+                                {optImages.map((img, i) => (
+                                  <QuizImagePreview key={i} src={img} maxHeight="max-h-36" />
+                                ))}
+                                {opt.explanation && !opt.isCorrect && (
+                                  <span className="block text-[11px] text-slate-400 font-normal mt-0.5 italic">
+                                    Eliminasi: {opt.explanation}
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
 
                       {q.explanation && (
