@@ -42,6 +42,24 @@ export function AnatoQuizPlayer({ packageId, categorySlug, questionLimit }: { pa
   // Helper to load cache
   const getCacheKey = () => `anatoquiz_${categorySlug || ''}_${packageId || ''}_limit_${questionLimit || 'all'}`;
   
+  // Helper to shuffle array
+  const shuffleArray = <T,>(arr: T[]): T[] => {
+    return [...arr].sort(() => Math.random() - 0.5);
+  };
+
+  // Helper to prepare questions with shuffled options
+  const prepareFreshQuestions = (rawQuestions: QuizQuestion[], limit?: number) => {
+    let list = shuffleArray(rawQuestions).map((q) => ({
+      ...q,
+      // Acak urutan opsi jawaban (A, B, C, D, E) untuk setiap soal
+      options: q.options && Array.isArray(q.options) ? shuffleArray(q.options) : []
+    }));
+    if (limit && limit > 0) {
+      list = list.slice(0, limit);
+    }
+    return list;
+  };
+
   const fetchQuestions = async () => {
     try {
       setLoading(true);
@@ -62,13 +80,26 @@ export function AnatoQuizPlayer({ packageId, categorySlug, questionLimit }: { pa
             const mergedQuestions = (parsed.questions || []).map((cachedQ: QuizQuestion) => {
               const freshQ = freshMap.get(cachedQ.id);
               if (!freshQ) return cachedQ;
+
+              const freshOptMap = new Map((freshQ.options || []).map((o: QuizOption) => [o.id, o]));
+              const updatedOptions = (cachedQ.options || []).map((cachedOpt: QuizOption) => {
+                const freshOpt = freshOptMap.get(cachedOpt.id);
+                if (!freshOpt) return cachedOpt;
+                return {
+                  ...cachedOpt,
+                  text: freshOpt.text,
+                  isCorrect: freshOpt.isCorrect,
+                  explanation: freshOpt.explanation,
+                };
+              });
+
               return {
                 ...cachedQ,
                 question: freshQ.question,
                 imageUrl: freshQ.imageUrl,
                 explanation: freshQ.explanation,
                 correctAnswer: freshQ.correctAnswer,
-                options: freshQ.options && freshQ.options.length > 0 ? freshQ.options : cachedQ.options,
+                options: updatedOptions.length > 0 ? updatedOptions : shuffleArray(freshQ.options || []),
               };
             });
 
@@ -78,26 +109,13 @@ export function AnatoQuizPlayer({ packageId, categorySlug, questionLimit }: { pa
               setUserAnswers(parsed.userAnswers || {});
               setQuizFinished(Boolean(parsed.quizFinished));
             } else {
-              let shuffled = data.sort(() => Math.random() - 0.5);
-              if (questionLimit && questionLimit > 0) {
-                shuffled = shuffled.slice(0, questionLimit);
-              }
-              setQuestions(shuffled);
+              setQuestions(prepareFreshQuestions(data, questionLimit));
             }
           } catch {
-            let shuffled = data.sort(() => Math.random() - 0.5);
-            if (questionLimit && questionLimit > 0) {
-              shuffled = shuffled.slice(0, questionLimit);
-            }
-            setQuestions(shuffled);
+            setQuestions(prepareFreshQuestions(data, questionLimit));
           }
         } else if (Array.isArray(data)) {
-          // No cache, shuffle new
-          let shuffled = data.sort(() => Math.random() - 0.5);
-          if (questionLimit && questionLimit > 0) {
-            shuffled = shuffled.slice(0, questionLimit);
-          }
-          setQuestions(shuffled);
+          setQuestions(prepareFreshQuestions(data, questionLimit));
         }
       }
     } catch (err) {
