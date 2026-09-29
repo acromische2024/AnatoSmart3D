@@ -42,47 +42,81 @@ export function AnatoQuizPlayer({ packageId, categorySlug, questionLimit }: { pa
   // Helper to load cache
   const getCacheKey = () => `anatoquiz_${categorySlug || ''}_${packageId || ''}_limit_${questionLimit || 'all'}`;
   
-  const resetQuiz = () => {
-    localStorage.removeItem(getCacheKey());
-    setQuestions([...questions].sort(() => Math.random() - 0.5));
-    setCurrentIndex(0);
-    setUserAnswers({});
-    setQuizFinished(false);
-  };
-
-  useEffect(() => {
-    async function fetchQuestions() {
-      try {
-        const query = packageId ? `packageId=${packageId}` : categorySlug ? `categorySlug=${categorySlug}` : '';
-        if (!query) return;
-        const res = await fetch(`/api/quiz?${query}`);
-        if (res.ok) {
-          const data = await res.json();
-          
-          // Check local storage for cached progress
-          const cached = localStorage.getItem(getCacheKey());
-          if (cached) {
+  const fetchQuestions = async () => {
+    try {
+      setLoading(true);
+      const query = packageId ? `packageId=${packageId}` : categorySlug ? `categorySlug=${categorySlug}` : '';
+      if (!query) return;
+      const res = await fetch(`/api/quiz?${query}`);
+      if (res.ok) {
+        const data = await res.json();
+        
+        // Check local storage for cached progress
+        const cached = localStorage.getItem(getCacheKey());
+        if (cached && Array.isArray(data) && data.length > 0) {
+          try {
             const parsed = JSON.parse(cached);
-            setQuestions(parsed.questions);
-            setCurrentIndex(parsed.currentIndex);
-            setUserAnswers(parsed.userAnswers);
-            setQuizFinished(parsed.quizFinished);
-          } else {
-            // No cache, shuffle new
+            const freshMap = new Map(data.map((d: QuizQuestion) => [d.id, d]));
+            
+            // Merge latest questions from server (for updated images/explanations/options/isCorrect)
+            const mergedQuestions = (parsed.questions || []).map((cachedQ: QuizQuestion) => {
+              const freshQ = freshMap.get(cachedQ.id);
+              if (!freshQ) return cachedQ;
+              return {
+                ...cachedQ,
+                question: freshQ.question,
+                imageUrl: freshQ.imageUrl,
+                explanation: freshQ.explanation,
+                correctAnswer: freshQ.correctAnswer,
+                options: freshQ.options && freshQ.options.length > 0 ? freshQ.options : cachedQ.options,
+              };
+            });
+
+            if (mergedQuestions.length > 0) {
+              setQuestions(mergedQuestions);
+              setCurrentIndex(typeof parsed.currentIndex === 'number' ? parsed.currentIndex : 0);
+              setUserAnswers(parsed.userAnswers || {});
+              setQuizFinished(Boolean(parsed.quizFinished));
+            } else {
+              let shuffled = data.sort(() => Math.random() - 0.5);
+              if (questionLimit && questionLimit > 0) {
+                shuffled = shuffled.slice(0, questionLimit);
+              }
+              setQuestions(shuffled);
+            }
+          } catch {
             let shuffled = data.sort(() => Math.random() - 0.5);
             if (questionLimit && questionLimit > 0) {
               shuffled = shuffled.slice(0, questionLimit);
             }
             setQuestions(shuffled);
           }
+        } else if (Array.isArray(data)) {
+          // No cache, shuffle new
+          let shuffled = data.sort(() => Math.random() - 0.5);
+          if (questionLimit && questionLimit > 0) {
+            shuffled = shuffled.slice(0, questionLimit);
+          }
+          setQuestions(shuffled);
         }
-      } catch (err) {
-        console.error(err);
-        toast.error('Gagal memuat kuis');
-      } finally {
-        setLoading(false);
       }
+    } catch (err) {
+      console.error(err);
+      toast.error('Gagal memuat kuis');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const resetQuiz = () => {
+    localStorage.removeItem(getCacheKey());
+    setCurrentIndex(0);
+    setUserAnswers({});
+    setQuizFinished(false);
+    fetchQuestions();
+  };
+
+  useEffect(() => {
     fetchQuestions();
   }, [packageId, categorySlug]);
 

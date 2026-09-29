@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     const results: any[] = [];
     for (const item of questions) {
       // Find image from multiple possible keys
-      const imageCandidate =
+      let imageCandidate =
         item.imageUrl ||
         item.image ||
         item.gambar ||
@@ -66,16 +66,24 @@ export async function POST(request: Request) {
         null;
 
       // Extract question text and choices
-      const questionText = item.pertanyaan || item.question || item.soal;
+      const rawQuestionText = item.pertanyaan || item.question || item.soal;
       const choices = item.pilihan || item.options || item.choices;
 
+      // Also extract image from question text if imageCandidate is not yet found
+      if (!imageCandidate && rawQuestionText && typeof rawQuestionText === 'string') {
+        const imgMatch = rawQuestionText.match(/<img\b[^>]*\bsrc=["']([^"']+)["'][^>]*\/?>/i);
+        if (imgMatch && imgMatch[1] && (imgMatch[1].startsWith('http') || imgMatch[1].startsWith('/'))) {
+          imageCandidate = imgMatch[1].trim();
+        }
+      }
+
       // Multiple Choice
-      if (questionText && Array.isArray(choices) && choices.length > 0) {
+      if (rawQuestionText && Array.isArray(choices) && choices.length > 0) {
         const questionData = await db.quizQuestion.create({
           data: {
             packageId: quizPackage.id,
             type: "MULTIPLE_CHOICE",
-            question: questionText,
+            question: rawQuestionText,
             imageUrl: imageCandidate,
             explanation: item.pembahasan || item.explanation || item.rasionalisasi || null,
           }
@@ -112,7 +120,10 @@ export async function POST(request: Request) {
             const cleanTarget = targetAnswer.replace(/^[A-E][.)]\s*/i, '').trim().toLowerCase();
 
             const isTextMatch = Boolean(targetAnswer && (pilText.trim().toLowerCase() === targetAnswer.toLowerCase() || cleanPil === cleanTarget));
-            const isKeyMatch = Boolean(targetKey && targetKey === optionLetter);
+            const isKeyMatch = Boolean(
+              (targetKey && (targetKey === optionLetter || targetKey.startsWith(optionLetter + '.') || targetKey.startsWith(optionLetter + ')'))) ||
+              (targetAnswer.toUpperCase() === optionLetter || targetAnswer.toUpperCase().startsWith(optionLetter + '.') || targetAnswer.toUpperCase().startsWith(optionLetter + ')'))
+            );
 
             isCorrect = isTextMatch || isKeyMatch;
           }

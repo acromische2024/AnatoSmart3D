@@ -147,9 +147,12 @@ export function extractImagesAndCleanText(
   });
 
   // 2. HTML <img> tags: <img src="..." />
-  const htmlImgRegex = /<img[^>]+src=["'](https?:\/\/[^"']+)["'][^>]*>/gi;
+  const htmlImgRegex = /<img\b[^>]*\bsrc=["']([^"']+)["'][^>]*\/?>/gi;
   text = text.replace(htmlImgRegex, (_, url) => {
-    if (!images.includes(url)) images.push(url);
+    const trimmed = url.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) {
+      if (!images.includes(trimmed)) images.push(trimmed);
+    }
     return '';
   });
 
