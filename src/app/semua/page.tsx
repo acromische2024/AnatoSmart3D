@@ -264,33 +264,6 @@ function KanbanBoard() {
 
   const currentCat = categories.find(c => c.id === activeCategory);
 
-  useEffect(() => {
-    if (!currentCat) return;
-    const { preparationVideos } = getVideosForCategory(currentCat.name, currentCat.youtubeUrl, currentCat.extraVideoUrl);
-    const urls = preparationVideos.map(v => v.originalUrl).filter(Boolean);
-    if (urls.length === 0) return;
-    const titlesMap: Record<string, string> = {};
-    Promise.all(
-      urls.map(async (url) => {
-        try {
-          const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?\n]+)/);
-          const videoId = match ? match[1] : null;
-          if (videoId) {
-            const res = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`);
-            if (res.ok) {
-              const data = await res.json();
-              if (data.title) titlesMap[videoId] = data.title;
-            }
-          }
-        } catch (e) {}
-      })
-    ).then(() => setPrepVideoTitles(titlesMap));
-  }, [currentCat]);
-  
-  const filteredCategories = categories.filter(cat => 
-    cat.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   const getPrepsForCategory = (catName: string) => {
     return preparations.filter(p => p.category === catName);
   };
@@ -337,6 +310,33 @@ function KanbanBoard() {
       preparationVideos: Array.from(uniqueVideosMap.values())
     };
   };
+
+  useEffect(() => {
+    if (!currentCat) return;
+    const { preparationVideos } = getVideosForCategory(currentCat.name, currentCat.youtubeUrl, currentCat.extraVideoUrl);
+    const urls = preparationVideos.map(v => v.originalUrl).filter(Boolean);
+    if (urls.length === 0) return;
+    const titlesMap: Record<string, string> = {};
+    Promise.all(
+      urls.map(async (url) => {
+        try {
+          const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?\n]+)/);
+          const videoId = match ? match[1] : null;
+          if (videoId) {
+            const res = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data.title) titlesMap[videoId] = data.title;
+            }
+          }
+        } catch (e) {}
+      })
+    ).then(() => setPrepVideoTitles(titlesMap));
+  }, [currentCat]);
+  
+  const filteredCategories = categories.filter(cat => 
+    cat.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (loading) {
     return (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Menu, X, Home, Microscope, Video, BrainCircuit, FileText, Users } from 'lucide-react';
+import { Menu, X, Home, Microscope, Video, BrainCircuit, FileText, Users, Box } from 'lucide-react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -14,6 +14,7 @@ export function Navbar() {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const navItems = [
+    { label: 'AnatoAtlas 3D', href: '/atlas', icon: Box, key: 'atlas' },
     { label: 'Preparat', href: '/semua?mode=preparat_only', icon: Microscope, key: 'preparat' },
     { label: 'AnatoPlay', href: '/semua?mode=video', icon: Video, key: 'video' },
     { label: 'AnatoQuiz', href: '/semua?mode=kuis', icon: BrainCircuit, key: 'kuis' },
@@ -22,6 +23,9 @@ export function Navbar() {
   ];
 
   const isLinkActive = (item: typeof navItems[0]) => {
+    if (item.href === '/atlas') {
+      return pathname.startsWith('/atlas');
+    }
     if (item.href === '/tentang') {
       return pathname.startsWith('/tentang');
     }

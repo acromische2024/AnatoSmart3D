@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { BackgroundOrbs } from '@/components/anatomy/BackgroundOrbs';
 import { CleanYoutubePlayer } from '@/components/anatomy/CleanYoutubePlayer';
+import { ModelViewer } from '@/components/anatomy/ModelViewer';
 import { Button } from '@/components/ui/button';
 import { 
   PlayCircle, 
@@ -215,18 +216,42 @@ export default function PreparatPage({ params }: { params: Promise<{ id: string 
             <div className="w-full bg-black/50 border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative mb-6">
               {currentPrep.modelUrl ? (
                 <div className="w-full h-[50vh] md:h-[60vh] min-h-[400px] relative">
-                  <iframe
-                    ref={iframeRef}
-                    src={getIframeUrl(currentPrep.modelUrl)}
-                    title={currentPrep.title}
-                    className="absolute inset-0 w-full h-full border-0"
-                    allowFullScreen
-                    allow="autoplay; fullscreen; xr-spatial-tracking"
-                    xr-spatial-tracking="true"
-                    execution-while-out-of-viewport="true"
-                    execution-while-not-rendered="true"
-                    web-share="true"
-                  />
+                  {currentPrep.modelUrl.includes('.glb') || currentPrep.modelUrl.includes('.gltf') ? (
+                    <ModelViewer
+                      url={currentPrep.modelUrl}
+                      markers={currentPrep.markers?.map(m => ({
+                        id: m.id,
+                        label: m.label,
+                        description: m.description,
+                        positionX: m.positionX,
+                        positionY: m.positionY,
+                        positionZ: m.positionZ,
+                        color: m.color || '#38bdf8'
+                      }))}
+                      activeMarkerId={
+                        activeHotspotIndex !== null && currentPrep.markers?.[activeHotspotIndex]
+                          ? currentPrep.markers[activeHotspotIndex].id
+                          : null
+                      }
+                      onMarkerClick={(id) => {
+                        const idx = currentPrep.markers?.findIndex(m => m.id === id) ?? -1;
+                        if (idx !== -1) setActiveHotspotIndex(idx);
+                      }}
+                    />
+                  ) : (
+                    <iframe
+                      ref={iframeRef}
+                      src={getIframeUrl(currentPrep.modelUrl)}
+                      title={currentPrep.title}
+                      className="absolute inset-0 w-full h-full border-0"
+                      allowFullScreen
+                      allow="autoplay; fullscreen; xr-spatial-tracking"
+                      xr-spatial-tracking="true"
+                      execution-while-out-of-viewport="true"
+                      execution-while-not-rendered="true"
+                      web-share="true"
+                    />
+                  )}
                   <div className="absolute inset-0 pointer-events-none rounded-3xl shadow-[inset_0_0_50px_rgba(0,0,0,0.5)]" />
                 </div>
               ) : currentPrep.imageUrl ? (

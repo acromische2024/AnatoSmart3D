@@ -29,7 +29,8 @@ import {
   Heart,
   Building2,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Box
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { BackgroundOrbs } from '@/components/anatomy/BackgroundOrbs';
@@ -281,6 +282,47 @@ export default function TentangPage() {
                 </motion.div>
               </AnimatePresence>
 
+            </motion.section>
+
+            {/* 3D Model Attribution / Lisensi */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="w-full max-w-4xl mx-auto mb-16 p-6 sm:p-8 rounded-3xl bg-[#0a0f1d]/80 border border-white/10 shadow-xl text-center"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center mx-auto mb-4">
+                <Box className="w-6 h-6 text-sky-400" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Atribusi Model 3D Anatomi</h3>
+              <p className="text-sm text-slate-300 leading-relaxed max-w-2xl mx-auto mb-4">
+                Visualisasi 3D seluruh tubuh dan organ pada modul <strong>AnatoAtlas</strong> diadaptasi dari dataset <strong>BodyParts3D 4.0</strong>, © <em>The Database Center for Life Science</em> (DBCLS), Jepang.
+              </p>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-slate-400 mb-4">
+                <span>Dilisensikan di bawah</span>
+                <strong className="text-sky-300">Creative Commons Attribution 4.0 International (CC BY 4.0)</strong>
+              </div>
+              <div className="flex justify-center gap-4 text-xs text-sky-400">
+                <a
+                  href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:underline flex items-center gap-1"
+                >
+                  <span>Ketentuan Lisensi</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+                <span>•</span>
+                <a
+                  href="https://academic.oup.com/nar/article/37/suppl_1/D782/1000752"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:underline flex items-center gap-1"
+                >
+                  <span>Publikasi Riset BodyParts3D</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
             </motion.section>
           </>
         )}

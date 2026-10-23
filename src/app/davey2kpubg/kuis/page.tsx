@@ -86,11 +86,6 @@ export default function QuizEditorPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    fetchCategories();
-    fetchPackages();
-  }, []);
-
   const fetchCategories = async () => {
     try {
       const res = await fetch('/api/categories');
@@ -113,6 +108,11 @@ export default function QuizEditorPage() {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    fetchCategories();
+    fetchPackages();
+  }, []);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

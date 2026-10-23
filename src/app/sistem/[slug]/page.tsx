@@ -14,10 +14,13 @@ import {
   Microscope,
   ChevronRight,
   PlayCircle,
-  FileText
+  FileText,
+  Box
 } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import { BackgroundOrbs } from '@/components/anatomy/BackgroundOrbs';
+import { AnatoAtlasExplorer } from '@/components/anatomy/atlas/AnatoAtlasExplorer';
+import type { SystemId } from '@/components/anatomy/atlas/types';
 
 type SystemCategory = {
   id: string;
@@ -40,6 +43,25 @@ type Preparation = {
   thumbnailUrl: string | null;
   youtubeUrl: string | null;
   documentUrl: string | null;
+};
+
+const getSystemsForSlug = (systemSlug: string): SystemId[] => {
+  switch (systemSlug) {
+    case 'sistem-saraf':
+      return ['nervous'];
+    case 'sistem-muskuloskeletal':
+      return ['skeletal', 'muscular', 'connective'];
+    case 'sistem-kardiovaskular':
+      return ['cardiac', 'arterial', 'venous'];
+    case 'sistem-uropoetika':
+      return ['urinary'];
+    case 'sistem-digesetif':
+      return ['digestive'];
+    case 'sistem-respirasi':
+      return ['respiratory'];
+    default:
+      return ['cardiac', 'skeletal', 'muscular', 'respiratory', 'digestive'];
+  }
 };
 
 export default function SystemDetailPage() {
@@ -204,8 +226,8 @@ export default function SystemDetailPage() {
   const { categoryVideos, preparationVideos } = getVideosForCategory();
   const totalVideos = categoryVideos.length + preparationVideos.length;
 
-  // Komponen Preparat List (reusable)
-  const PreparatList = ({ compact = false }: { compact?: boolean }) => (
+  // Render Preparat List (reusable)
+  const renderPreparatList = (compact: boolean = false) => (
     <div className={compact ? 'space-y-3' : 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4'}>
       {preparations.length === 0 ? (
         <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-8 text-center col-span-full">
@@ -266,8 +288,8 @@ export default function SystemDetailPage() {
     visible: { opacity: 1, y: 0, transition: { type: 'spring', damping: 20, stiffness: 200 } }
   };
 
-  // Komponen Video List
-  const VideoList = () => {
+  // Render Video List
+  const renderVideoList = () => {
     return (
       <motion.div 
         className="grid grid-cols-1 sm:grid-cols-2 gap-4"
@@ -334,8 +356,8 @@ export default function SystemDetailPage() {
     );
   };
 
-  // Komponen Materi
-  const MateriContent = () => {
+  // Render Materi
+  const renderMateriContent = () => {
     const getFileName = (url: string) => {
       const parts = url.split('/').pop() || 'Dokumen';
       const underscoreIndex = parts.indexOf('_');
@@ -437,8 +459,8 @@ export default function SystemDetailPage() {
     );
   };
 
-  // Komponen Kuis
-  const KuisContent = () => (
+  // Render Kuis
+  const renderKuisContent = () => (
     <div 
       onClick={() => router.push(`/kuis/${category.slug}`)}
       className="bg-[#111118] border border-white/5 p-5 sm:p-6 rounded-2xl cursor-pointer hover:border-purple-500/50 hover:bg-[#1a1a24] hover:shadow-[0_10px_40px_rgba(168,85,247,0.15)] hover:-translate-y-1 transition-all duration-300 group flex items-center gap-4"
@@ -503,7 +525,7 @@ export default function SystemDetailPage() {
         {/* Sticky Tab Bar */}
         <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 bg-[#050511]/90 backdrop-blur-xl border-b border-white/5">
           <div className="w-full flex justify-between items-center relative h-10">
-            {['materi', 'preparat', 'video', 'kuis'].map(tab => {
+            {['preparat', '3d', 'materi', 'video', 'kuis'].map(tab => {
               const isActive = mobileTab === tab;
               return (
                 <button
@@ -511,13 +533,14 @@ export default function SystemDetailPage() {
                   onClick={() => setMobileTab(tab)}
                   className={`flex-1 relative pb-2 text-xs font-semibold capitalize transition-all z-10 ${isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'}`}
                 >
-                  <span className="relative z-20">{tab}</span>
+                  <span className="relative z-20">{tab === '3d' ? 'Model 3D' : tab}</span>
                   {isActive && (
                     <motion.div
                       layoutId="tab-underline"
                       className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full ${
                         tab === 'materi' ? 'bg-white' :
                         tab === 'preparat' ? 'bg-sky-500' :
+                        tab === '3d' ? 'bg-teal-400' :
                         tab === 'video' ? 'bg-rose-500' : 'bg-purple-500'
                       }`}
                       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
@@ -531,9 +554,16 @@ export default function SystemDetailPage() {
 
         <div className="mt-4 pb-8 space-y-4">
           <AnimatePresence mode="wait">
+            {mobileTab === '3d' && (
+              <motion.div key="3d" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+                <div className="h-[480px] w-full rounded-2xl overflow-hidden border border-white/10">
+                  <AnatoAtlasExplorer initialVisibleSystems={getSystemsForSlug(slug)} isEmbedded />
+                </div>
+              </motion.div>
+            )}
             {mobileTab === 'materi' && (
               <motion.div key="materi" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-                <MateriContent />
+                {renderMateriContent()}
               </motion.div>
             )}
             {mobileTab === 'preparat' && (
@@ -542,17 +572,17 @@ export default function SystemDetailPage() {
                   <h3 className="font-bold text-sm text-slate-400">Preparat 3D</h3>
                   <span className="text-xs text-slate-500 bg-white/5 px-2 py-1 rounded-full">{preparations.length}</span>
                 </div>
-                <PreparatList compact />
+                {renderPreparatList(true)}
               </motion.div>
             )}
             {mobileTab === 'video' && (
               <motion.div key="video" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-                <VideoList />
+                {renderVideoList()}
               </motion.div>
             )}
             {mobileTab === 'kuis' && (
               <motion.div key="kuis" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-                <KuisContent />
+                {renderKuisContent()}
               </motion.div>
             )}
           </AnimatePresence>
@@ -568,13 +598,38 @@ export default function SystemDetailPage() {
           {/* KOLOM KIRI: Konten Utama */}
           <div className="col-span-8 xl:col-span-9 space-y-8">
             
+            {/* Visualisasi 3D Interaktif Sistem */}
+            <section className="bg-slate-900/40 border border-white/10 rounded-2xl p-5 sm:p-6 overflow-hidden shadow-2xl">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center">
+                    <Box className="w-4 h-4 text-sky-400" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-lg text-white">Visualisasi 3D Anatomi: {category.name}</h2>
+                    <p className="text-xs text-slate-400">Model interaktif 3D BodyParts3D khusus sistem ini</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => router.push('/atlas')}
+                  className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1 hover:underline"
+                >
+                  <span>Buka Full Body Atlas</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <div className="h-[460px] w-full rounded-xl overflow-hidden border border-white/10 relative">
+                <AnatoAtlasExplorer initialVisibleSystems={getSystemsForSlug(slug)} isEmbedded />
+              </div>
+            </section>
+
             {/* Materi Overview */}
             <section>
               <div className="flex items-center gap-2 mb-4">
                 <BookOpen className="w-5 h-5 text-sky-400" />
                 <h2 className="font-bold text-xl">Materi Overview</h2>
               </div>
-              <MateriContent />
+              {renderMateriContent()}
             </section>
 
             {/* Video */}
@@ -586,7 +641,7 @@ export default function SystemDetailPage() {
                 </div>
                 <span className="text-xs text-slate-500 bg-white/5 px-3 py-1 rounded-full">{totalVideos} video</span>
               </div>
-              <VideoList />
+              {renderVideoList()}
             </section>
 
             {/* Kuis */}
@@ -595,7 +650,7 @@ export default function SystemDetailPage() {
                 <BrainCircuit className="w-5 h-5 text-purple-400" />
                 <h2 className="font-bold text-xl">AnatoQuiz</h2>
               </div>
-              <KuisContent />
+              {renderKuisContent()}
             </section>
           </div>
 

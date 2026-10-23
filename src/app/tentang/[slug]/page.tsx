@@ -2,7 +2,7 @@ import { ViewTransition } from 'react';
 import { db as prisma } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { BackgroundOrbs } from '@/components/anatomy/BackgroundOrbs';
-import { ChevronLeft, Mail, MapPin, Calendar, Heart, Quote, BookOpen, GraduationCap, Building2, ExternalLink, Instagram } from 'lucide-react';
+import { ChevronLeft, Mail, MapPin, Calendar, Heart, Quote, BookOpen, GraduationCap, Building2, ExternalLink, Instagram, Users } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
